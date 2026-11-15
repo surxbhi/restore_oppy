@@ -1,0 +1,66 @@
+{
+  "frames": [
+    {
+      "filename": "tracks 0",
+      "label": "sojourner",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 48
+      },
+      "duration": 100
+    },
+    {
+      "filename": "tracks 1",
+      "label": "curiosity",
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 64,
+        "h": 48
+      },
+      "duration": 100
+    },
+    {
+      "filename": "tracks 2",
+      "label": "rock",
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 64,
+        "h": 48
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "tracks.png",
+    "size": {
+      "w": 192,
+      "h": 48
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "sojourner",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "curiosity",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "rock",
+        "from": 2,
+        "to": 2,
+        "direction": "forward"
+      }
+    ]
+  }
+}

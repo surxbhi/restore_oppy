@@ -1,0 +1,49 @@
+{
+  "frames": [
+    {
+      "filename": "phoenix-lander 0",
+      "label": "idle",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 80
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-lander 1",
+      "label": "dusty",
+      "frame": {
+        "x": 112,
+        "y": 0,
+        "w": 112,
+        "h": 80
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_phoenix_sprites.mjs",
+    "image": "phoenix-lander.png",
+    "size": {
+      "w": 224,
+      "h": 80
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "dusty",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      }
+    ]
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "frames": [
+    {
+      "filename": "phoenix-scoop 0",
+      "label": "idle",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 1",
+      "label": "idle",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 2",
+      "label": "talk",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 3",
+      "label": "talk",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 4",
+      "label": "dig",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 5",
+      "label": "full",
+      "frame": {
+        "x": 200,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 6",
+      "label": "clunk",
+      "frame": {
+        "x": 240,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 7",
+      "label": "rasp",
+      "frame": {
+        "x": 280,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 8",
+      "label": "detective",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-scoop 9",
+      "label": "happy",
+      "frame": {
+        "x": 360,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_phoenix_sprites.mjs",
+    "image": "phoenix-scoop.png",
+    "size": {
+      "w": 400,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "talk",
+        "from": 2,
+        "to": 3,
+        "direction": "forward"
+      },
+      {
+        "name": "dig",
+        "from": 4,
+        "to": 4,
+        "direction": "forward"
+      },
+      {
+        "name": "full",
+        "from": 5,
+        "to": 5,
+        "direction": "forward"
+      },
+      {
+        "name": "clunk",
+        "from": 6,
+        "to": 6,
+        "direction": "forward"
+      },
+      {
+        "name": "rasp",
+        "from": 7,
+        "to": 7,
+        "direction": "forward"
+      },
+      {
+        "name": "detective",
+        "from": 8,
+        "to": 8,
+        "direction": "forward"
+      },
+      {
+        "name": "happy",
+        "from": 9,
+        "to": 9,
+        "direction": "forward"
+      }
+    ]
+  }
+}

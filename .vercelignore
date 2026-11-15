@@ -1,0 +1,12 @@
+# Never upload these to Vercel
+.git
+.vercel/
+.env
+.env.*
+node_modules/
+.venv/
+__pycache__/
+.DS_Store
+*.pem
+*.key
+.netrc

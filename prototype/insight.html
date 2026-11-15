@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisper Beneath Mars</title>
+<!-- Prototype. Built by tools/make_sprites.mjs from insight.template.html: edit the template. Same structure as phoenix.template.html. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Jersey+15&display=swap" rel="stylesheet">
+<style>
+  /* Whisper Beneath Mars on the scaled stage (owner, 2026-11-15): every size is a design pixel on the 1280 x 720 stage.
+     The frame (header, step banner, main, caption bar), the buttons, tiles, cards and story chrome come from house.css. */
+  :root {
+    --night: #1b1433; --night2: #2e2357; --panel: #261c48; --ink: #f6f0ff; --muted: #b9acdf;
+    --pink: #ff7ad9; --cyan: #7ff7ff; --lime: #b8ff7a; --yellow: #fff27a; --lav: #c6a8ff; --orange: #ffab6b;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; color: var(--ink); font-family: "Jersey 15", system-ui, sans-serif; font-size: 20px;
+    background:
+      radial-gradient(2px 2px at 12% 18%, #fff8 50%, transparent 51%),
+      radial-gradient(2px 2px at 78% 12%, #7ff7ffaa 50%, transparent 51%),
+      radial-gradient(2px 2px at 44% 82%, #ff7ad9aa 50%, transparent 51%),
+      radial-gradient(2px 2px at 90% 70%, #fff8 50%, transparent 51%),
+      linear-gradient(180deg, #1b1433 0%, #2a1d52 60%, #3b2266 100%);
+    overflow: hidden;
+  }
+  [hidden] { display: none !important; }
+  button { font: inherit; color: var(--ink); }
+  button:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+
+  /* ---------- the scene: 320 x 200 game pixels at 2x (640 x 400), with a small label under it ---------- */
+  .board-stack { display: grid; gap: 6px; justify-items: center; }
+  canvas#game { border-radius: 14px; box-shadow: 0 0 0 3px #7ff7ff55, 0 0 40px #ff7ad944; background: var(--night); touch-action: none; display: block; }
+  .scenenote { margin: 0; height: 22px; font-family: var(--font-read); font-size: var(--fs-small); line-height: 22px; color: var(--muted); }
+  .card { background: #261c48cc; border: 0; border-radius: 16px; padding: var(--card-pad); }
+  .label { color: var(--muted); font-size: var(--fs-label); margin: 0 0 8px; }
+  .label:empty { display: none; }
+
+  /* ---------- controls: arrows on the left, Hint beside Up, a tall Put down on the right ---------- */
+  .controls { display: grid; grid-template-columns: repeat(3, 76px) minmax(0, 1fr); grid-template-rows: 64px 64px; gap: 8px; }
+  .key { padding: 0; min-width: 0; color: var(--cyan); background: #ffffff10; }
+  .key svg { width: 38px; height: 38px; display: block; margin: auto; }
+  .key.flash { transform: translateY(2px); box-shadow: 0 1px 0 var(--depth); filter: brightness(1.4); }
+  .k-up { grid-column: 2; grid-row: 1; } .k-left { grid-column: 1; grid-row: 2; } .k-down { grid-column: 2; grid-row: 2; } .k-right { grid-column: 3; grid-row: 2; }
+  .controls .k-hint { grid-column: 3; grid-row: 1; height: 100%; padding: 0 4px; --accent: var(--yellow); color: var(--yellow); }
+  .controls .k-set { grid-column: 4; grid-row: 1 / span 2; height: auto; padding: 0 12px; }
+  .go.flash { transform: translateY(3px); box-shadow: 0 2px 0 #2e8a49; }
+  /* the scene's one main action (Hammer, Fit the antenna): house.css .main-action, beside the scene (the 22px note under it leaves no room below) */
+
+  /* ---------- solved panel: a short positive line, the teaching sentence, one big Next, a small Replay ---------- */
+  .solved { text-align: center; }
+  .solvedmsg { margin: 0 0 12px; }
+  .praise { margin: 0 0 8px; font-size: var(--fs-heading); font-family: var(--font-display); color: var(--lime); }
+  .why { margin: 0 0 6px; font-size: var(--fs-body); font-family: var(--font-read); text-align: left; line-height: 1.35; }
+  .solved .btn-next { height: var(--h-btn-primary); animation: nextGlow 1.3s ease-in-out infinite alternate; }
+  @keyframes nextGlow { from { box-shadow: 0 5px 0 #2e8a49, 0 0 16px #b8ff7a77; } to { box-shadow: 0 5px 0 #2e8a49, 0 0 36px #b8ff7add; } }
+
+  /* ---------- picture answers (survey, traces, learning check): every one is a tile you can tap ---------- */
+  .answers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .answers.three { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .answer { position: relative; padding: 8px 8px 10px; background: #ffffff10; color: var(--ink); font-family: var(--font-read); font-size: var(--fs-label); line-height: 1.25;
+    display: flex; flex-direction: column; align-items: center; gap: 6px; animation: ansIn .4s ease-out both; }
+  .answer canvas { image-rendering: pixelated; display: block; border-radius: 8px; }
+  .answers.waiting .answer:not(.crossed) { animation: ansIn .4s ease-out both, ansPulse 1.5s ease-in-out .5s infinite; }
+  .answers .answer:nth-child(2) { animation-delay: .08s, .6s; } .answers .answer:nth-child(3) { animation-delay: .16s, .7s; }
+  .answer.right { --accent: var(--lime); background: #b8ff7a33; }
+  .answer.wrong { animation: shake .35s; }
+  .answer.crossed { animation: shake .35s both; opacity: .5; --accent: var(--orange); box-shadow: none; cursor: not-allowed; }
+  .answer.crossed canvas { filter: grayscale(.5); }
+  @keyframes ansIn { from { opacity: 0; transform: translateY(14px) scale(.92); } to { opacity: 1; transform: none; } }
+  @keyframes ansPulse { 0%, 100% { box-shadow: 0 4px 0 var(--depth), 0 0 0 0 #7ff7ff00; } 50% { box-shadow: 0 4px 0 var(--depth), 0 0 18px 2px #7ff7ffaa; } }
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  .qbig { margin: 0 0 14px; font-size: var(--fs-heading); line-height: 1.2; color: var(--yellow); text-shadow: 0 0 10px #fff27a55; font-weight: 700; }
+  .qpop { animation: qpop .4s ease-out both; }
+  @keyframes qpop { from { opacity: 0; transform: translateY(-10px) scale(.96); } to { opacity: 1; transform: none; } }
+  .disc { font-size: var(--fs-small); color: var(--lav) !important; }
+  @media (prefers-reduced-motion: reduce) { .solved .btn-next, .answer, .answers.waiting .answer { animation: none !important; } }
+
+  /* ---------- story time: the whole main area, real NASA pictures and the marsquake video ---------- */
+  .play.story { grid-template-columns: minmax(0, 1fr) !important; align-items: stretch !important; }
+  .play.story .play-board, .play.story .play-ctrls { display: none; }
+  #storyStage { height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 4px; }
+  #storyStage .st-media { background: #120d24; border-radius: 16px; padding: 10px; }
+  #storyStage .st-fig { animation: st-in .45s ease-out both; }
+  #storyStage .st-frame img, #storyStage .st-frame video { max-height: 340px; width: auto; height: auto; max-width: 100%; }
+  #storyStage .st-frame video { background: #161026; }
+  .st-frame .st-play { position: absolute; z-index: 3; background: #1b1433e6; color: var(--ink); font-family: var(--font-display); }
+  .st-frame .st-play { left: 50%; top: 50%; width: 88px; height: 88px; margin: -44px 0 0 -44px; border-radius: 50%; font-size: 40px; padding: 0 0 0 6px; }
+  @keyframes st-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { #storyStage .st-fig { animation: none; } }
+
+  /* ---------- caption bar (sizes in house.css) ---------- */
+  #portrait { border-radius: 12px; background: #2e2357; }
+  .who { color: var(--cyan); font-weight: 700; }
+  .dev { display: flex; gap: 6px; align-items: center; background: #000c; border: 2px dashed var(--yellow); color: var(--yellow); font: 14px system-ui, sans-serif; }
+  .dev select, .dev button { font: 14px system-ui, sans-serif; }
+  .err { position: fixed; left: 0; right: 0; top: 0; background: #b00020; color: #fff; padding: 8px; z-index: 9; }
+
+  /* ---------- cards ---------- */
+  .closex { position: absolute; right: -14px; top: -14px; width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
+    border: 4px solid #fff3d6; background: radial-gradient(circle at 35% 30%, #ffb07a, #f2672e); color: #fff;
+    font: 700 26px/1 system-ui, sans-serif; box-shadow: 0 0 0 3px #1b1433, 0 4px 0 #1b1433, 0 0 18px #ff8a5c88; }
+  .closex:hover { filter: brightness(1.1); transform: translateY(-2px); }
+  .closex:active { transform: translateY(2px); }
+  .closex:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+  .overlay { display: grid; place-items: center; background: #1b1433dd; z-index: 5; }
+  .overlay .box { position: relative; text-align: center; background: var(--panel); border: 3px solid var(--cyan); border-radius: 24px; padding: 24px 36px; box-shadow: 0 0 40px #7ff7ff55; max-width: 680px; }
+  .overlay h2 { font-size: var(--fs-heading); margin: 0 0 8px; color: var(--cyan); text-shadow: 0 0 12px #7ff7ff; }
+  .overlay p { color: var(--ink); margin: 0 0 14px; }
+  .mcard { text-align: left !important; }
+  .mcard h2 { text-align: center; }
+  .mcard .row { display: flex; justify-content: center; margin-top: 16px; }
+  .badge { display: inline-block; font-size: var(--fs-small); padding: 2px 10px; border-radius: 999px; background: #ff7ad933; color: var(--pink); }
+</style>
+<link rel="stylesheet" href="house.css">
+<script src="stage.js"></script>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" href="favicon-192.png">
+</head>
+<body>
+<div id="app" data-stage class="frame">
+  <header class="hdr">
+    <h1 class="hdr-title">Whisper Beneath Mars</h1>
+    <div class="hdr-ctrls">
+      <button class="hbtn hbtn-mission" id="missionBtn" title="See your mission">Your mission</button>
+      <button class="hbtn" id="voiceBtn" aria-pressed="true" title="Voice on or off (V)">🔊 Voice</button>
+      <button class="hbtn" id="restartBtn" hidden title="Start InSight's story again">↺ Restart</button>
+    </div>
+  </header>
+  <div class="stepbar" id="stepbar" aria-live="polite"><span class="step-text" id="stepText"></span><span class="step-sub" id="stepSub"></span></div>
+
+  <main class="play" id="play">
+    <div class="play-board">
+      <div class="board-stack"><canvas id="game" width="640" height="400" aria-label="Game picture"></canvas><p class="scenenote" id="sceneNote"></p></div>
+      <button class="main-action beside" id="hammerBtn" hidden title="Hammer (Space)">&#128296; Hammer · <span class="digits" id="hammerSub">0 / 3</span></button>
+      <button class="main-action beside" id="fitBtn" hidden title="Fit the antenna (Space)">Fit the antenna</button>
+    </div>
+    <section id="storyStage" hidden aria-label="Story time">
+      <div class="st-top"><span class="st-title" id="stTitle"></span><span class="st-part" id="stPart"></span><span class="st-dots" id="stDots"></span></div>
+      <div class="st-media" id="stMedia"></div>
+    </section>
+
+    <div class="play-ctrls">
+      <section class="card" id="armControls" hidden>
+        <div class="controls">
+          <button class="key tap k-up" data-m="up" aria-label="Move the arm up" title="Move up (↑)"></button>
+          <button class="key tap k-left" data-m="left" aria-label="Move the arm left" title="Move left (←)"></button>
+          <button class="key tap k-down" data-m="down" aria-label="Move the arm down" title="Move down (↓)"></button>
+          <button class="key tap k-right" data-m="right" aria-label="Move the arm right" title="Move right (→)"></button>
+          <button class="toolbtn k-hint" id="armHintBtn" title="Hint (H)">💡 Hint</button>
+          <button class="go k-set" id="setDownBtn" title="Put down (Space)">Put down</button>
+        </div>
+      </section>
+
+      <section class="card" id="p3Panel" hidden>
+        <p class="label" id="p3Label"></p>
+        <div id="p3Body"></div>
+      </section>
+
+      <section class="card solved" id="solvedPanel" hidden>
+        <div class="solvedmsg" id="solvedMsg"></div>
+        <div class="nextrow"><button class="btn-next go bignext" id="solvedNext">Next ▶</button>
+        <button class="btn-replay" id="solvedReplay">↺ Replay</button></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <canvas id="portrait" width="40" height="40" aria-hidden="true"></canvas>
+    <div><div class="who" id="who"></div><div class="line" id="line" role="status" aria-live="polite"></div></div>
+    <div class="cap-btns">
+      <button class="toolbtn" id="backBtn" hidden title="Previous line (B)">◀ Back</button>
+      <button class="next" id="nextBtn" data-cap-next hidden>Next ▶</button>
+    </div>
+  </footer>
+
+  <div class="overlay" id="cardOverlay" hidden><div class="box mcard" id="cardBox"></div></div>
+
+  <div class="overlay" id="startOverlay">
+    <div class="box">
+      <h2>Whisper Beneath Mars</h2>
+      <p>InSight's story. Turn your sound on!</p>
+      <p class="disc">An imaginary adventure starring real space explorers.<br>The missions and discoveries you uncover really happened.</p>
+      <button class="go" id="startBtn">Start ▶</button>
+      <p style="margin:16px 0 0; font-size:var(--fs-small); color:var(--muted)">or press <kbd>Enter</kbd></p>
+    </div>
+  </div>
+</div>
+
+<div class="dev" id="devPanel" hidden>
+  <b>DEV</b>
+  <select id="devJump" aria-label="Jump to step">
+    <option value="start">Fresh start</option><option value="opening">Find InSight</option><option value="cards">Mission cards</option>
+    <option value="patch">Survey the site</option><option value="sensor">Put SEIS down</option><option value="shield">Cover it with the shield</option>
+    <option value="heat">Try the heat probe</option><option value="wave">Listen: waves</option><option value="learning">What was SEIS listening for?</option>
+    <option value="story">Story time</option><option value="gift">Gift box</option><option value="install">Fit the antenna on Oppy</option>
+    <option value="complete">Mission complete</option>
+  </select>
+  <button id="devGo">Go</button><button id="devReset">Reset save</button>
+</div>
+
+
+<script src="audio/manifest.js"></script>
+<script src="voice.js"></script>
+<script src="sfx.js"></script>
+<script src="script/insight.script.js"></script>
+<script src="../storytimes/stories.js"></script>
+<script src="captions.js"></script>
+<script src="giftbox.js"></script>
+<script>
+"use strict";
+const waves = [
+  { target: [0,1,6,1,0,0,0], choices: [[0,1,6,1,0,0,0],[0,0,1,6,1,0,0],[0,1,3,1,0,0,0]], answer: 0 },
+  { target: [0,1,6,1,5,1,0], choices: [[0,1,3,1,7,1,0],[0,1,6,2,5,1,0],[0,1,6,1,0,5,0]], answer: 1 }
+];
+function verify() {
+  for (const wave of waves) {
+    const matches = wave.choices.map(trace => wave.target.every((point, i) => Math.abs(point - trace[i]) <= 1));
+    if (!matches[wave.answer] || matches.filter(Boolean).length !== 1) throw Error("Ambiguous wave");
+  }
+}
+
+const A = {"curiosity":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAAAoCAYAAAB5LPGYAAABxklEQVR4nO3awW3CQBCFYTrJPSXkknuKSQuUkD5yTxmROKWInJFyNFpLiyyzXmaZGP87vCfNcdafhsFgxG6nKIqi/EOen96GXFtbSpHPF7Qvob5/fs9FQ8rnC9o3x9GQ8vmC9k1xx78Bh5Qvtm/x3UEByhfbhwfK16Fv+rRjrSVcS8kn34hLn/VblAUpX2zfZsA9fIDy3cd39TN/rWoZoHxxfVXgy+v7RVkubumLMsCe50fwLQLToTktSGtf9AWkz4/iKwLzgTn5qeYasqUv8gLS50fyVYGlR2sL0NL3CAtInR/JhwdqAbWAuAGWzp9XydfSF+UFpvuqwOnF0oHW7wiWvke4A1LnR/JVn5KWqvbCWfsiL2AP86P48L8T9bqAPcyP4LsADh+HsSyQ3GtZkvm5tw4wmq/2nZXgW3t+7jvMrf33ugOSfS0LGHV+I/Dz67BJWQcoX1wfHihfbB8eKF9s3xnZWuk/X6ULtpQJJ194X3NqwNUu2hD5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fKH78ED5fFnTdwIrNsU+rpqtHgAAAABJRU5ErkJggg==","fw":40,"fh":40,"tags":[{"name":"idle","from":0,"to":1,"direction":"forward"},{"name":"talk","from":2,"to":3,"direction":"forward"}],"names":["idle","idle","talk","talk"]},"curiosityAngled":{"src":"data:image/png;base64,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","fw":72,"fh":64,"tags":[{"name":"idle","from":0,"to":1,"direction":"forward"},{"name":"talk","from":2,"to":3,"direction":"forward"},{"name":"drive","from":4,"to":5,"direction":"forward"},{"name":"worried","from":6,"to":7,"direction":"forward"},{"name":"happy","from":8,"to":9,"direction":"forward"}],"names":["idle","idle","talk","talk","drive","drive","worried","worried","happy","happy"]},"oppy":{"src":"data:image/png;base64,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","fw":64,"fh":56,"tags":[{"name":"off","from":0,"to":0,"direction":"forward"},{"name":"idle","from":1,"to":2,"direction":"forward"},{"name":"talk","from":3,"to":4,"direction":"forward"},{"name":"happy","from":5,"to":6,"direction":"forward"}],"names":["off","idle","idle","talk","talk","happy","happy"]},"oppyParts":{"src":"data:image/png;base64,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","fw":64,"fh":56,"tags":[],"names":["base","wheels","arm","antenna","mast","panels","complete"]}};
+const PAL = {"outline":"#2a1f4a","night":"#1b1433","nightHi":"#2e2357","metalHi":"#f4f7ff","metal":"#cdd6ea","metalMid":"#aab5d0","metalLow":"#8590b2","metalDeep":"#646e93","rim":"#7ff7ff","rivet":"#8a95b6","panel":"#5b4bd6","panelHi":"#9d8cff","panelLine":"#3d2f9e","panelSpec":"#ff9ee6","tire":"#5c5f80","wheel":"#c3cbe0","hub":"#ffffff","eye":"#ffffff","pupil":"#2a1f4a","shine":"#ffffff","iris":"#4fd6ff","blush":"#ff8fd0","mouth":"#2a1f4a","tongue":"#ff7ab8","lens":"#3a3f6e","lensHi":"#7ff7ff","leg":"#9aa3c4","antennaTip":"#ff7ad9","sand":"#e8643c","sandLight":"#ff8f5e","sandDark":"#c24a2e","sandGlint":"#ffc09a","rock":"#9a5a7a","rockHi":"#c27ea0","rockShade":"#6e3d5c","neonPink":"#ff7ad9","neonCyan":"#7ff7ff","neonLime":"#b8ff7a","neonYellow":"#fff27a","neonLav":"#c6a8ff","track":"#b5412a","trackDeep":"#93321f"};
+const QS = new URLSearchParams(location.search), DEV = QS.has("dev") && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname); // dev tools only on the developer's own computer, never for players (owner, 2026-11-15: "remove the dev mode")
+const FAST = QS.get("fast") === "1";                                   // fast / test mode: no demos, animations finish at once
+const REDUCED = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+const SAVE_KEY = "ins.progress";
+
+// ---------- self-check: both wave matches must have exactly one right answer ----------
+(() => {
+  try { verify(); }
+  catch (e) { document.body.insertAdjacentHTML("afterbegin", `<div class="err">Wave check failed: ${e.message}</div>`); }
+})();
+
+// ---------- the mission: six steps ----------
+const STEPS = [
+  { id: "patch", short: "Survey", name: "Survey the site", goal: "Which surface should we choose?", desc: "Pick the flat patch." },
+  { id: "sensor", short: "Put SEIS down", name: "Put SEIS down", goal: "Can you guide SEIS onto the flat patch?", desc: "Put SEIS down on the ground." },
+  { id: "shield", short: "Shield", name: "Cover it with the shield", goal: "Can you cover SEIS?", desc: "Place the shield over SEIS." },
+  { id: "heat", short: "Heat probe", name: "Try the heat probe", goal: "Can the mole reach deep enough?", desc: "Fire 3 hammer strikes." },
+  { id: "wave", short: "Listen", name: "Listen", goal: "Which trace matches this vibration?", desc: "Match two vibration traces." },
+  { id: "check", short: "Check", name: "Learning check", goal: "What was SEIS listening for?", desc: "A quiz, then look inside Mars." },
+];
+const stepIndex = id => STEPS.findIndex(s => s.id === id);
+
+// ---------- images ----------
+const img = {};
+const load = k => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.src = A[k].src; img[k] = i; });
+const fr = (sheet, name) => Math.max(0, A[sheet].names.indexOf(name));
+const tag = (sheet, name) => A[sheet].tags.find(t => t.name === name);
+function sprite(sheet, f, x, y, s = 1, flip = false) {
+  const w = A[sheet].fw, h = A[sheet].fh;
+  cx.save(); cx.translate(snap(x), snap(y)); if (flip) { cx.scale(-s, s); cx.drawImage(img[sheet], f * w, 0, w, h, -w, 0, w, h); }
+  else { cx.scale(s, s); cx.drawImage(img[sheet], f * w, 0, w, h, 0, 0, w, h); }
+  cx.restore();
+}
+
+// ---------- canvas ----------
+const cv = document.getElementById("game");
+let cx = cv.getContext("2d");             // let: offscreen() draws the same pictures onto a small canvas
+let NW = 320, NH = 200, SCALE = 2, PX = 2;
+function fit() {
+  // The board cell is a fixed 672 x 472 design px on the 1280 x 720 stage, so the scene (320 x 200 game px) is always 2x:
+  // the largest WHOLE number that fits. The canvas holds real screen pixels (design size x stage scale x devicePixelRatio).
+  const cell = document.querySelector(".play-board");
+  const room = Math.min((cell.clientWidth || 672) / NW, ((cell.clientHeight || 472) - 30) / NH);
+  SCALE = Math.max(1, Math.floor(room));
+  const dev = (window.stage?.scale || 1) * (window.devicePixelRatio || 1);
+  cv.width = Math.round(NW * SCALE * dev); cv.height = Math.round(NH * SCALE * dev);
+  cv.style.width = NW * SCALE + "px"; cv.style.height = NH * SCALE + "px";
+  PX = SCALE * dev; cx.imageSmoothingEnabled = false;
+}
+const snap = v => Math.round(v * PX) / PX;
+addEventListener("stage:fit", fit);                                    // the stage changed scale: more or fewer real pixels to draw
+if (window.ResizeObserver) new ResizeObserver(() => fit()).observe(document.querySelector(".play-board"));   // story time hides the board cell
+const sceneNote = t => { document.getElementById("sceneNote").textContent = t || ""; };
+
+// ---------- state and save ----------
+const S = {
+  phase: "start", step: -1, busy: false, fast: FAST, parts: [], draw: null, scene: null, patch: null, dep: null, heat: null, wave: null, check: null, install: null,
+  progress: loadProgress(),
+};
+function loadProgress() {
+  let v = null; try { v = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch {}
+  v = v || {};
+  const steps = v.steps || {};
+  if (v.done) for (const s of STEPS) steps[s.id] = steps[s.id] || { done: true };   // an older save that only says "done"
+  return { intro: !!(v.intro || v.done), steps, story: !!(v.story || v.done), installed: !!(v.installed || v.done), done: !!v.done };
+}
+function saveProgress() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S.progress)); } catch {} }
+
+// ---------- voice + captions ----------
+// Every spoken line is in script/insight.script.js: LINE(id) gives { id, who, text }. voice.js speaks it: the recording in
+// audio/ if there is one, else the computer voice (contract: .claude/script-contract.md).
+let nextResolve = null, speaker = "curiosity", lastLine = null;
+function say(line, { next = false, back = false, quiet = false } = {}) {   // line = LINE(id), or a step of several (Voice.step, packLines)
+  speaker = line.who; lastLine = line;
+  document.getElementById("who").textContent = Voice.name(line.who);
+  const lineEl = document.getElementById("line"); lineEl.textContent = line.text;
+  if (quiet) Voice.stop();                       // a page with its own sound (the marsquake video): show the words, do not speak over it
+  else Voice.speak(line);
+  const nb = document.getElementById("nextBtn"), bb = document.getElementById("backBtn");
+  if (nextResolve && !next) { const r = nextResolve; nextResolve = null; r("skip"); }
+  if (!next) { nb.hidden = true; bb.hidden = true; return Promise.resolve("next"); }
+  nb.hidden = false; bb.hidden = !back; nb.focus({ preventScroll: true });
+  return new Promise(res => { nextResolve = (v = "next") => { nb.hidden = true; bb.hidden = true; nextResolve = null; res(v); }; });
+}
+// Fewer clicks: split lines into sentences and pack neighbours by the same speaker into steps of about two caption lines
+// (a character budget; a sentence is never cut). Everything queued through lines() is packed, so edited text repacks itself.
+// Voice.step keeps which line each sentence came from (a whole line plays its recording; a part of a line, the computer voice).
+const STEP_CHARS = 185;
+const splitSentences = text => text.match(/[^.!?]+[.!?]+["')\u201d]*|[^.!?]+$/g) || [text];
+function packLines(list) {                       // [LINE(...), ...] -> fewer steps (Voice.step), same speaker per step
+  const out = [];
+  for (let i = 0; i < list.length;) {
+    let j = i; const pieces = [];
+    while (j < list.length && list[j].who === list[i].who) {
+      for (const t of splitSentences(list[j].text).map(t => t.trim()).filter(Boolean)) pieces.push({ line: list[j], text: t });
+      j++;
+    }
+    const steps = [];
+    for (const p of pieces) {
+      const last = steps[steps.length - 1];
+      if (last && (last.text + " " + p.text).length <= STEP_CHARS) { last.text += " " + p.text; last.pieces.push(p); }
+      else steps.push({ text: p.text, pieces: [p] });
+    }
+    steps.forEach(st => out.push(Voice.step(st.pieces)));
+    i = j;
+  }
+  return out;
+}
+async function lines(list) {                     // a little conversation; Back goes to the previous line
+  list = packLines(list);
+  for (let i = 0; i < list.length;) {
+    const r = await say(list[i], { next: true, back: i > 0 });
+    i = r === "back" ? Math.max(0, i - 1) : i + 1;
+  }
+}
+document.getElementById("nextBtn").onclick = () => nextResolve && nextResolve("next");
+document.getElementById("backBtn").onclick = () => nextResolve && nextResolve("back");
+const voiceBtn = document.getElementById("voiceBtn");
+Voice.button(voiceBtn);                          // 🔊 / 🔇 Voice: on and off for the recordings and the computer voice (?mute=1 starts off)
+
+const pv = document.getElementById("portrait"), pxc = pv.getContext("2d"); pxc.imageSmoothingEnabled = false;
+function drawPortrait(now) {
+  const talking = Voice.talking(now);
+  pxc.clearRect(0, 0, 40, 40);
+  if (speaker === "oppy") {
+    const t = tag("oppy", talking ? "talk" : "idle"), f = t.from + (talking ? Math.floor(now / 140) % 2 : 0);
+    pxc.drawImage(img.oppy, f * 64 + 31, 0, 28, 13, 1, 10, 38, 18); return;
+  }
+  if (speaker === "seis") {                      // SEIS: a little dome with eyes, drawn in pixel rows
+    const row = (cxm, y, hw, col) => { pxc.fillStyle = col; pxc.fillRect(cxm - hw, y, hw * 2, 1); };
+    const dome = (r, base, col) => { for (let dy = 0; dy < r; dy++) row(20, base - 1 - dy, Math.round(Math.sqrt(r * r - (dy + 0.5) ** 2)), col); };
+    dome(19, 31, PAL.outline); dome(18, 31, PAL.metal); dome(11, 26, PAL.metalHi);
+    pxc.fillStyle = PAL.outline; pxc.fillRect(3, 30, 34, 6); pxc.fillStyle = PAL.metalMid; pxc.fillRect(4, 31, 32, 4);
+    for (const ex of [13, 23]) { pxc.fillStyle = PAL.eye; pxc.fillRect(ex, 17, 5, 6); pxc.fillStyle = PAL.pupil; pxc.fillRect(ex + 1, 18, 3, 4); pxc.fillStyle = PAL.shine; pxc.fillRect(ex + 1, 18, 1, 1); }
+    pxc.fillStyle = PAL.mouth; if (talking && Math.floor(now / 140) % 2) pxc.fillRect(18, 25, 4, 3); else pxc.fillRect(18, 26, 4, 1);
+    return;
+  }
+  const t = tag("curiosity", talking ? "talk" : "idle");
+  let f = t.from; if (talking) f += Math.floor(now / 140) % (t.to - t.from + 1); else if (now % 2800 > 2650) f = t.to;
+  pxc.drawImage(img.curiosity, f * 40, 0, 40, 40, 0, 0, 40, 40);
+}
+
+// ---------- cards ----------
+let cardResolve = null;
+function showCard(html, button = "Next ▶", onShow = null, cls = "box mcard") {
+  const ov = document.getElementById("cardOverlay"), box = document.getElementById("cardBox");
+  box.className = cls;
+  box.innerHTML = button === "CLOSE"
+    ? html + `<button class="closex" id="cardBtn" aria-label="Close" title="Close (Esc)">✕</button>`
+    : html + `<div class="row"><button class="go" id="cardBtn" data-cap-next>${button}</button></div>`;
+  ov.hidden = false;
+  if (onShow) onShow(box);
+  const btn = document.getElementById("cardBtn"); btn.focus({ preventScroll: true });
+  return new Promise(res => {
+    cardResolve = () => { if (!cardResolve) return; cardResolve = null; ov.hidden = true; res(); };
+    btn.onclick = () => cardResolve && cardResolve();
+  });
+}
+
+// ---------- helpers ----------
+// S.fast (tests only): animations finish at once, so tests run even in a hidden, throttled tab
+const wait = ms => new Promise(r => setTimeout(r, S.fast ? Math.min(ms, 30) : ms));
+function tween(ms, fn) { if (S.fast) { fn(1); return Promise.resolve(); } return new Promise(res => { const t0 = performance.now(); const step = now => { const k = Math.min(1, (now - t0) / ms); fn(k); k < 1 ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); }); }
+function sparkle(x, y, n = 18) { const cs = [PAL.neonPink, PAL.neonCyan, PAL.neonYellow, PAL.neonLime, "#ffffff"]; for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, v = 0.4 + Math.random(); S.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 0.4, life: 30 + Math.random() * 20, c: cs[i % cs.length] }); } }
+function dust(x, y, n = 6, cs = [PAL.sandLight, "#fff1e4", PAL.sand]) { for (let i = 0; i < n; i++) S.parts.push({ x, y, vx: (Math.random() - 0.5) * 1.4, vy: -0.3 - Math.random() * 0.8, life: 20 + Math.random() * 16, c: cs[i % cs.length] }); }
+function stepParts(ox, oy) {
+  S.parts = S.parts.filter(p => (p.life -= 1) > 0);
+  for (const p of S.parts) { p.x += p.vx; p.y += p.vy; p.vy += 0.04; cx.fillStyle = p.c; cx.fillRect(snap(ox + p.x), snap(oy + p.y), 1, 1); }
+}
+function fillPoly(pts, c) { cx.fillStyle = c; cx.beginPath(); pts.forEach(([x, y], i) => i ? cx.lineTo(x, y) : cx.moveTo(x, y)); cx.closePath(); cx.fill(); }
+function txt(s, x, y, c = "#fff", size = 8, align = "center") { cx.fillStyle = c; cx.font = `${size}px 'Jersey 15', monospace`; cx.textAlign = align; cx.fillText(s, x, y); }
+function shadowEllipse(x, y, rx, ry) { cx.fillStyle = "rgba(60,16,30,.35)"; cx.beginPath(); cx.ellipse(x, y, rx, ry, 0, 0, 7); cx.fill(); }
+const rect = (x, y, w, h, c) => { cx.fillStyle = c; cx.fillRect(x, y, w, h); };
+const box = (x, y, w, h, c, light) => { rect(x - 2, y - 2, w + 4, h + 4, PAL.outline); rect(x, y, w, h, c); rect(x + 2, y + 2, w - 4, 3, light); };
+function disc(x0, y0, r, c) { for (let y = y0 - r; y <= y0 + r; y++) { const hw = Math.round(Math.sqrt(Math.max(0, r * r - (y - y0) ** 2))); rect(x0 - hw, y, hw * 2 + 1, 1, c); } }
+const ICON = {
+  up: `<svg viewBox="0 0 24 24"><path d="M12 21V10" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M12 2.6 19.4 11H4.6Z" fill="currentColor"/></svg>`,
+};
+document.querySelectorAll(".key[data-m]").forEach(b => {
+  const rot = { up: 0, right: 90, down: 180, left: 270 }[b.dataset.m];
+  b.innerHTML = ICON.up.replace("<svg", `<svg style="transform:rotate(${rot}deg)"`);
+});
+function makeCanvas(w, h, draw) {                 // run a game-picture function on a small canvas
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const g = c.getContext("2d"); g.imageSmoothingEnabled = false;
+  const keep = [cx, PX]; cx = g; PX = 1;
+  try { draw(); } finally { [cx, PX] = keep; }
+  return c;
+}
+const offscreen = (w, h, draw) => makeCanvas(w, h, draw).toDataURL();
+
+// =====================================================================================
+// Pictures. Mars, the lander, the three patches, the arm close-up, the mole, the traces, the inside of Mars.
+// Every function draws onto the global cx, so the mission cards reuse them (half size, no labels: bare).
+// =====================================================================================
+function drawMars() {
+  rect(0, 0, 320, 200, "#211538"); rect(0, 105, 320, 95, PAL.sand); rect(0, 105, 320, 5, PAL.sandLight);
+  for (let i = 0; i < 48; i++) rect((i * 71) % 320, 9 + (i * 17) % 82, 1, 1, "#b195dc");
+  for (let i = 0; i < 65; i++) rect((i * 53) % 320, 112 + (i * 19) % 87, 2, 1, PAL.sandDark);
+}
+function drawLander(rocks = true) {               // InSight: deck, two solar panels, legs, and the arm holding SEIS
+  rect(47, 143, 94, 5, "#a94036");
+  box(66, 110, 56, 26, "#d9bb8a", "#ffe4b1");
+  box(22, 116, 40, 11, "#7063af", "#bfb0ff"); box(124, 116, 33, 11, "#7063af", "#bfb0ff");
+  for (const leg of [71, 109]) { rect(leg, 135, 5, 12, "#3d2b4b"); rect(leg - 4, 144, 13, 3, "#3d2b4b"); }
+  rect(74, 88, 4, 23, "#d4c7dd"); box(69, 85, 13, 5, "#a193b0", "#efe2f2");
+  cx.lineCap = "butt"; cx.strokeStyle = "#3d2b4b"; cx.lineWidth = 7; cx.beginPath(); cx.moveTo(104, 109); cx.lineTo(134, 75); cx.lineTo(162, 81); cx.stroke();
+  rect(158, 79, 8, 5, "#fec0dc");
+  box(154, 85, 16, 9, "#a68fb6", "#f3d7ff");      // SEIS in the arm's hand
+  if (rocks) for (const [px, py] of [[182, 155], [265, 143]]) box(px, py, 14, 8, "#98475c", "#d17b75");
+}
+// the three surfaces to choose from on the survey picture
+const PATCH = {
+  rocky: { x: 166, y: 146, w: 44, h: 40, name: "ROCKY" },
+  flat: { x: 216, y: 146, w: 44, h: 40, name: "FLAT" },
+  sloped: { x: 266, y: 146, w: 44, h: 40, name: "SLOPED" },
+};
+function drawPatch(kind, p, label = true) {
+  const { x, y, w, h } = p;
+  if (kind === "sloped") {
+    fillPoly([[x - 1, y + h + 1], [x - 1, y + h * 0.78], [x + w + 1, y + h * 0.1], [x + w + 1, y + h + 1]], PAL.outline);
+    fillPoly([[x, y + h], [x, y + h * 0.8], [x + w, y + h * 0.14], [x + w, y + h]], PAL.sandLight);
+    cx.strokeStyle = PAL.sand; cx.lineWidth = 1;
+    for (let i = 1; i < 4; i++) { cx.beginPath(); cx.moveTo(x + 3, y + h * 0.8 + i * 4); cx.lineTo(x + w - 3, y + h * 0.16 + i * 7); cx.stroke(); }
+  } else {
+    rect(x - 1, y + 5, w + 2, h - 3, PAL.outline);
+    rect(x, y + 6, w, h - 5, kind === "flat" ? PAL.sandLight : PAL.sandDark);
+    if (kind === "flat") { for (let i = 0; i < 5; i++) rect(x + 5 + i * 8, y + 14 + (i % 2) * 9, 5, 1, PAL.sandGlint); rect(x + 4, y + h - 3, w - 8, 1, PAL.sand); }
+    else for (const [rx, ry, rw] of [[x + 3, y + 14, 14], [x + 24, y + 11, 12], [x + 10, y + 27, 12], [x + 28, y + 26, 13], [x + 18, y + 18, 8]]) box(rx, ry, rw, 8, "#98475c", "#d17b75");
+  }
+  if (label) {                                      // a raised chip with a ▶ badge: you can tap it
+    const lw = 42, lx = Math.round(x + w / 2 - lw / 2), ly = y - 14;
+    rect(lx - 1, ly + 1, lw + 2, 15, "#0a0620"); rect(lx - 1, ly - 1, lw + 2, 15, PAL.neonCyan); rect(lx, ly, lw, 13, "#2e2357");
+    txt(PATCH[kind].name, lx + lw / 2 - 1, ly + 10, "#fff", 8);
+    disc(lx + lw - 1, ly - 1, 3, PAL.neonCyan); fillPoly([[lx + lw - 2, ly - 3], [lx + lw - 2, ly + 1], [lx + lw + 1, ly - 1]], "#1b1433");
+  }
+}
+function drawSurvey(bare = false, picked = null, crossed = []) {
+  drawMars(); drawLander(false);
+  for (const k of Object.keys(PATCH)) {
+    drawPatch(k, PATCH[k], !bare);
+    if (crossed.includes(k)) { const p = PATCH[k]; cx.globalAlpha = 0.9; txt("✕", p.x + p.w / 2, p.y + p.h / 2 + 12, PAL.orange || "#ffab6b", 36); cx.globalAlpha = 1; }
+  }
+  if (picked) { const p = PATCH[picked]; cx.strokeStyle = PAL.neonLime; cx.lineWidth = 2; cx.strokeRect(p.x - 4, p.y + 2, p.w + 8, p.h + 2); }
+}
+// the arm close-up; d = { tool: "sensor" | "shield", tip: {x, y}, released }
+const DROP = { x: 224, y: 129 };
+function inBox(tip) { return Math.abs(tip.x - 224) <= 18 && tip.y >= 118; }
+function drawCloseup(d, bare = false) {
+  drawMars();
+  rect(0, 149, 320, 51, "#b74f42"); rect(0, 149, 320, 6, "#ff9b70");
+  box(12, 83, 53, 61, "#d9bb8a", "#ffe4b1"); rect(15, 145, 56, 7, "#4d2c43");
+  const { x, y } = d.tip;
+  cx.lineCap = "butt"; cx.strokeStyle = "#30213f"; cx.lineWidth = 14; cx.beginPath(); cx.moveTo(56, 86); cx.lineTo(101, 44); cx.lineTo(x, y); cx.stroke();
+  cx.strokeStyle = "#c5aacb"; cx.lineWidth = 6; cx.stroke();
+  box(x - 6, y - 3, 12, 8, "#c59bbd", "#fbe0ef");   // the pink arm tip
+  const seisOnGround = d.tool === "shield" || d.released;
+  if (seisOnGround) box(DROP.x - 12, DROP.y + 5, 24, 15, "#a68fb6", "#f3d7ff");
+  const tx = d.released ? DROP.x : x, ty = d.released ? DROP.y : y;
+  if (d.tool === "shield") { box(tx - 20, ty + 5, 40, 13, "#d7d1db", "#fff4ef"); box(tx - 15, ty + 1, 30, 5, "#d7d1db", "#fff4ef"); }
+  else if (!d.released) box(tx - 12, ty + 5, 24, 15, "#a68fb6", "#f3d7ff");
+  if (!d.released && !bare) { cx.strokeStyle = "#ffe08a"; cx.lineWidth = 1; cx.setLineDash([4, 4]); cx.strokeRect(199, 112, 50, 39); cx.setLineDash([]); }
+}
+// the cutaway of the heat probe; taps = strikes so far, elapsed = ms into a strike (-1 = at rest)
+function drawMole(taps, elapsed = -1) {
+  const impact = elapsed >= 170, depth = (taps + (impact ? 1 : 0)) * 2;
+  const stroke = elapsed < 0 ? 0 : elapsed < 170 ? elapsed / 170 * 40 : Math.max(0, 40 - (elapsed - 170) / 6);
+  drawMars();
+  rect(0, 149, 320, 51, "#b74f42"); rect(0, 149, 320, 5, "#ff9b70"); rect(102, 151, 116, 49, "#8b4b52");
+  box(139, 37 + depth, 42, 128, "#725672", "#b698b0");
+  rect(146, 48 + depth, 28, 96, "#31233f");
+  box(150, 64 + depth + stroke, 20, 16, "#e5bdd2", "#fff4ef");     // the internal hammer
+  box(150, 124 + depth, 20, 15, "#b489ab", "#e5bdd2");
+  if (impact && elapsed < 340) for (let i = 0; i < 6; i++) rect(124 + i * 14, 145 - (i % 3) * 4, 3, 3, "#ffe0a5");
+}
+// the seismograph screen: the big peaks of a trace
+function waveLine(points, x, y, w, h, color, lw = 3) {
+  cx.strokeStyle = color; cx.lineWidth = lw; cx.lineJoin = "round"; cx.beginPath();
+  points.forEach((n, i) => { const px = x + i * w / (points.length - 1), py = y - n * h / 7; i ? cx.lineTo(px, py) : cx.moveTo(px, py); });
+  cx.stroke();
+}
+function drawWaves(points, bare = false, pick = null) {
+  rect(0, 0, 320, 200, PAL.night);
+  rect(18, 22, 284, 144, PAL.outline); rect(20, 24, 280, 140, "#161026");
+  cx.strokeStyle = "#ffffff14"; cx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) { cx.beginPath(); cx.moveTo(20 + i * 35, 29); cx.lineTo(20 + i * 35, 164); cx.stroke(); }
+  for (let i = 1; i < 5; i++) { cx.beginPath(); cx.moveTo(25, 24 + i * 28); cx.lineTo(295, 24 + i * 28); cx.stroke(); }
+  waveLine(points, 40, 140, 240, 105, PAL.neonCyan);
+  if (pick) waveLine(pick, 40, 140, 240, 105, PAL.neonLime, 1.5);
+  if (!bare) { txt("WHAT SEIS FELT", 30, 21, PAL.neonCyan, 8, "left"); txt("ILLUSTRATED SIGNAL", 290, 181, PAL.neonYellow, 8, "right"); }
+}
+function drawInterior(bare = false) {              // the inside of Mars, simplified
+  rect(0, 0, 320, 200, PAL.night);
+  for (let i = 0; i < 48; i++) rect((i * 71) % 320, 9 + (i * 17) % 160, 1, 1, "#b195dc");
+  for (const [r, c] of [[72, "#ffa377"], [56, "#d9606e"], [32, "#ffe28a"]]) { cx.fillStyle = c; cx.beginPath(); cx.arc(160, 100, r, 0, Math.PI * 2); cx.fill(); }
+  if (!bare) { txt("CORE", 160, 104, PAL.night, 10); txt("MANTLE", 160, 143, "#fff4ef", 10); txt("CRUST", 160, 38, PAL.night, 10); txt("SIMPLIFIED ILLUSTRATION", 160, 192, PAL.neonYellow, 8); }
+}
+// small answer pictures
+function patchPic(kind) { return makeCanvas(64, 48, () => { rect(0, 0, 64, 48, PAL.sand); cx.save(); drawPatch(kind, { x: 6, y: 4, w: 52, h: 40 }, false); cx.restore(); }); }
+function tracePic(points) {                       // 72 x 28 picture pixels, shown at 2x
+  return makeCanvas(72, 28, () => {
+    rect(0, 0, 72, 28, "#211538"); cx.strokeStyle = PAL.neonCyan; cx.lineWidth = 1; cx.lineJoin = "round"; cx.beginPath();
+    points.forEach((n, i) => { const px = 4 + i * 64 / (points.length - 1), py = 25 - n * 3; i ? cx.lineTo(px, py) : cx.moveTo(px, py); }); cx.stroke();
+  });
+}
+function checkPic(kind) {
+  return makeCanvas(64, 48, () => {
+    rect(0, 0, 64, 48, "#211538"); rect(0, 30, 64, 18, PAL.sand);
+    if (kind === "vibes") {
+      cx.strokeStyle = PAL.neonCyan; cx.lineWidth = 2; cx.beginPath();
+      [[2, 18], [12, 18], [16, 6], [20, 28], [24, 12], [28, 18], [62, 18]].forEach(([x, y], i) => i ? cx.lineTo(x, y) : cx.moveTo(x, y)); cx.stroke();
+      cx.strokeStyle = PAL.sandGlint; for (const r of [6, 12, 18]) { cx.beginPath(); cx.arc(40, 36, r, Math.PI, 0); cx.stroke(); }
+    } else {
+      box(18, 8, 28, 16, "#aab5d0", "#cdd6ea"); disc(32, 16, 5, "#3a3f6e"); rect(30, 14, 2, 2, PAL.lensHi);
+      cx.strokeStyle = PAL.neonYellow; cx.lineWidth = 1; cx.setLineDash([2, 2]); cx.beginPath(); cx.moveTo(32, 24); cx.lineTo(32, 46); cx.stroke(); cx.setLineDash([]);
+    }
+  });
+}
+
+// =====================================================================================
+// Opening scene: Curiosity drives up to InSight
+// =====================================================================================
+function drawOpening(now) {
+  const sc = S.scene || { cx: 205, anim: "idle" };
+  drawMars(); drawLander(true);
+  const talking = Voice.talking(now), anim = sc.anim === "drive" ? "drive" : talking ? "talk" : "idle";
+  const t = tag("curiosityAngled", anim), f = t.from + (anim === "idle" ? (now % 2600 > 2450 ? 1 : 0) : Math.floor(now / 160) % 2);
+  shadowEllipse(sc.cx + 38, 190, 30, 3);
+  sprite("curiosityAngled", Math.min(f, t.to), sc.cx, 124, 1, true);
+}
+async function openingScene() {
+  S.phase = "scene"; S.step = -1; document.getElementById("startOverlay").hidden = true; renderStep(); setCanvas(320, 200); showPanels(); S.parts = [];
+  sceneNote("InSight on Mars · Illustration");
+  const sc = S.scene = { cx: 340, anim: "idle" };
+  S.draw = drawOpening;
+  const drive = (to, ms) => { const from = sc.cx; sc.anim = "drive"; return tween(ms, k => { sc.cx = from + (to - from) * k; if (Math.random() < 0.3) dust(sc.cx + 70, 186, 1); }).then(() => { sc.anim = "idle"; }); };
+  say(LINE("ins.open.010"));
+  await drive(205, 1800);
+  for (let t = 0; t < 80 && Voice.talking(); t++) await new Promise(r => setTimeout(r, 100));   // let the first line finish (a recording may be longer than the drive), at most 8 s more
+  await lines([LINE("ins.open.020"), LINE("ins.open.030"), LINE("ins.open.040"), LINE("ins.open.050")]);
+  S.progress.intro = true; saveProgress(); renderStep();
+}
+function setCanvas(w, h) { NW = w; NH = h; fit(); }
+
+// =====================================================================================
+// The control column, the step banner, the answer tiles and the solved panel
+// =====================================================================================
+function showPanels(which = []) {
+  for (const id of ["armControls", "p3Panel", "solvedPanel"]) document.getElementById(id).hidden = !which.includes(id);
+  for (const id of ["hammerBtn", "fitBtn"]) document.getElementById(id).hidden = !which.includes(id);      // the main-action buttons live in the board cell
+  document.getElementById("play").classList.toggle("solo", !["armControls", "p3Panel", "solvedPanel"].some(id => which.includes(id)));      // a scene with no controls: the picture takes the whole row
+  cv.classList.toggle("tappable", S.phase === "patch");
+}
+const reduceMotion = () => REDUCED || !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+function popIn(el) { if (!el || reduceMotion()) return; el.classList.remove("qpop"); void el.offsetWidth; el.classList.add("qpop"); }
+document.addEventListener("click", e => { const a = e.target.closest && e.target.closest(".answer"); if (a && a.parentElement) a.parentElement.classList.remove("waiting"); });
+
+// The step banner: "Step N of 6" + one sentence about what to do now (+ the trace number). Updated on EVERY phase change.
+const STEP_TEXT = {        // [step number or 0 (no counter), sentence]: only the six puzzle steps carry "Step N of 6"
+  start: [0, "Curiosity finds InSight on Mars."], boot: [0, "Curiosity finds InSight on Mars."], scene: [0, "Curiosity finds InSight on Mars."],
+  patch: [1, "Which surface should SEIS sit on? Tap one."],
+  sensor: [2, "Guide SEIS onto the flat patch and put it down"],
+  shield: [3, "Guide the shield over SEIS and put it down"],
+  heat: [4, "Fire three hammer strikes and watch the mole"],
+  wave: [5, "Match the vibration"],
+  check: [6, "Tap the best answer"],
+  story: [0, "Story time: listen to InSight's story."], gift: [0, "Open your gift for Oppy!"],
+  install: [0, "Fit the antenna onto Oppy."],
+  complete: [0, "Mission complete! Oppy has its antenna."],
+};
+function renderStep() {
+  const solved = S.phase === "solved", n = solved ? Math.max(1, S.step + 1) : (STEP_TEXT[S.phase] || STEP_TEXT.scene)[0];
+  let text = solved ? "Press the green button to go on, or Replay to try again." : (STEP_TEXT[S.phase] || STEP_TEXT.scene)[1];
+  const d = v => `<span class="digits">${v}</span>`;                  // every digit in the reading font
+  if (S.phase === "wave" && S.wave) text += `. Trace ${d(S.wave.i + 1)} of ${d(waves.length)}`;
+  document.getElementById("stepText").innerHTML = (n ? `Step ${d(n)} of ${d(STEPS.length)} \u00b7 ` : "") + text;
+  document.getElementById("stepSub").textContent = "";
+}
+function p3Panel(label, node) {
+  showPanels(["p3Panel"]);
+  document.getElementById("p3Label").textContent = label || "";
+  const body = document.getElementById("p3Body"); body.replaceChildren(); if (node) body.append(node);
+  popIn(document.getElementById("p3Panel"));
+}
+// a picture tile you can tap; k = CSS pixels per picture pixel (a whole number)
+function answerBtn(text, canvas, aria, onclick, k = 2) {
+  const b = document.createElement("button"); b.className = "answer tile"; b.setAttribute("aria-label", aria || text);
+  canvas.style.width = canvas.width * k + "px"; canvas.style.height = canvas.height * k + "px";
+  b.append(canvas); const s = document.createElement("span"); s.innerHTML = text; b.append(s);
+  b.onclick = onclick; return b;
+}
+function wrongAnswer(b) { b.classList.remove("wrong"); void b.offsetWidth; window.SFX && SFX.play("wrong"); b.classList.add("wrong", "crossed"); b.onclick = null; b.disabled = true; b.setAttribute("aria-disabled", "true"); }
+
+// ---------- solved panel: one big Next, and a plain Replay ----------
+let solvedResolve = null;
+document.getElementById("solvedNext").onclick = () => solvedResolve && solvedResolve();
+document.getElementById("solvedReplay").onclick = () => solvedResolve && solvedResolve("replay");
+function showSolved(html, label) {   // resolves "next", or "replay" to try the same step again
+  window.SFX && SFX.play("solved");
+  S.phase = "solved"; showPanels(["solvedPanel"]); renderStep();
+  document.getElementById("solvedMsg").innerHTML = html;
+  const btn = document.getElementById("solvedNext"); btn.textContent = label; btn.focus({ preventScroll: true });
+  return new Promise(res => { solvedResolve = (v = "next") => { solvedResolve = null; res(v); }; });
+}
+const PRAISE = ["Nice work!", "Well done!", "Great listening!", "Good thinking!", "Super!"];
+let praiseAt = 0;
+async function finishStep(id, why, label) {       // finishing a step: a short positive line, its teaching sentence, then the big Next (no tallies, owner 2026-11-15)
+  S.progress.steps[id] = { done: true }; saveProgress();
+  return showSolved(`<p class="praise">${PRAISE[praiseAt++ % PRAISE.length]}</p>${why ? `<p class="why">${why}</p>` : ""}`, label);
+}
+
+// =====================================================================================
+// Step 1: survey the site
+// =====================================================================================
+async function stepPatch() {
+  for (;;) {
+    S.phase = "patch"; S.step = 0; renderStep(); setCanvas(320, 200); S.parts = [];
+    const st = S.patch = { crossed: [], picked: null, res: null };
+    S.draw = () => drawSurvey(false, st.picked, st.crossed);
+    sceneNote("InSight on Mars · Illustration");
+    showPanels();                                   // no side controls: tap Rocky, Flat or Sloped on the scene itself
+    say(LINE("ins.survey.010"));
+    await new Promise(res => { st.res = res; });
+    const r = await finishStep("patch", "A flat patch gives SEIS a level spot and room for its shield.", "Put SEIS down ▶");
+    if (r !== "replay") return;
+  }
+}
+const PATCH_SAY = { rocky: "ins.survey.020", sloped: "ins.survey.030" };
+function pickPatch(kind) {
+  const st = S.patch; if (S.phase !== "patch" || !st || st.picked) return;
+  if (kind !== "flat") {
+    if (st.crossed.includes(kind)) return;
+    st.crossed.push(kind);
+    const b = document.querySelector(`.answer[data-k="${kind}"]`); if (b) wrongAnswer(b);
+    say(LINE(PATCH_SAY[kind])); return;
+  }
+  st.picked = "flat"; document.querySelector('.answer[data-k="flat"]')?.classList.add("right");
+  document.querySelectorAll(".answer").forEach(x => { x.onclick = null; });
+  sparkle(PATCH.flat.x + 22, PATCH.flat.y + 20, 14);
+  say(LINE("ins.survey.040"));
+  st.res && st.res();
+}
+function patchAtGame(gx, gy) {
+  for (const k of Object.keys(PATCH)) { const p = PATCH[k]; if (gx >= p.x - 4 && gx <= p.x + p.w + 4 && gy >= p.y - 12 && gy <= p.y + p.h + 4) return k; }
+  return null;
+}
+
+// =====================================================================================
+// Steps 2 and 3: move the arm and set SEIS down, then cover it with the shield
+// =====================================================================================
+async function stepDeploy(id) {
+  const shield = id === "shield", i = stepIndex(id);
+  for (;;) {
+    S.phase = id; S.step = i; renderStep(); setCanvas(320, 200); S.parts = []; S.busy = false;
+    const d = S.dep = { tool: id, tip: { x: 95, y: 65 }, released: false, res: null };
+    S.draw = () => drawCloseup(d);
+    sceneNote("Deployment close-up · Illustration");
+    showPanels(["armControls"]);
+    say(LINE(shield ? "ins.shield.010" : "ins.sensor.010"));
+    await new Promise(res => { d.res = res; });
+    say(LINE(shield ? "ins.shield.020" : "ins.sensor.020"));
+    const why = shield ? "<b>Why add a shield?</b> The separate dome helps protect SEIS from wind and temperature changes."
+      : "<b>Why does SEIS touch the ground?</b> Touching the soil lets SEIS feel tiny vibrations.";
+    const r = await finishStep(id, why, shield ? "Try the heat probe ▶" : "Pick up the shield ▶");
+    if (r !== "replay") return;
+  }
+}
+function moveTip(x, y) { const d = S.dep; if (!d || d.released) return; d.tip = { x: Math.max(75, Math.min(275, x)), y: Math.max(44, Math.min(135, y)) }; }
+function nudgeTip(dir) {
+  if (!["sensor", "shield"].includes(S.phase) || S.busy || !S.dep) return;
+  const [dx, dy] = { up: [0, -8], down: [0, 8], left: [-8, 0], right: [8, 0] }[dir];
+  moveTip(S.dep.tip.x + dx, S.dep.tip.y + dy);
+}
+async function setDown() {
+  const d = S.dep;
+  if (!d || d.released || S.busy || !["sensor", "shield"].includes(S.phase)) return;
+  if (!inBox(d.tip)) { say(LINE("ins.arm.010")); return; }
+  S.busy = true; 
+  const x0 = d.tip.x, y0 = d.tip.y;
+  await tween(500, k => { d.tip = { x: x0 + (DROP.x - x0) * k, y: y0 + (DROP.y - y0) * k }; });
+  d.released = true; dust(DROP.x, 148, 10); window.SFX && SFX.play("place");
+  await tween(600, k => { d.tip = { x: DROP.x, y: DROP.y - 30 * k }; });
+  S.busy = false; d.res && d.res();
+}
+function armHint() {
+  if (!["sensor", "shield"].includes(S.phase) || !S.dep) return;
+  say(LINE("ins.arm.020"));
+}
+function toGame(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * NW / r.width, (e.clientY - r.top) * NH / r.height]; }
+// the picture is clickable only to choose a surface in the survey; the arm moves with the arrow buttons and keys, and Put down places it
+cv.addEventListener("pointerdown", e => {
+  if (S.phase !== "patch") return;
+  const [gx, gy] = toGame(e); const k = patchAtGame(gx, gy); if (k) pickPatch(k);
+});
+cv.addEventListener("pointermove", e => {
+  if (S.phase !== "patch") { cv.style.cursor = ""; return; }
+  const [gx, gy] = toGame(e); cv.style.cursor = !!patchAtGame(gx, gy) && !(S.patch && S.patch.picked) ? "pointer" : "";
+});
+
+
+// =====================================================================================
+// Step 4: the heat probe (three strikes, the mole barely moves)
+// =====================================================================================
+async function stepHeat() {
+  S.phase = "heat"; S.step = 3; renderStep(); setCanvas(320, 200); S.parts = []; S.busy = false;
+  const H = S.heat = { taps: 0, t0: 0, striking: false, res: null };
+  S.draw = now => drawMole(H.taps, H.striking ? now - H.t0 : -1);
+  sceneNote("Cutaway view · The hammer is inside the mole");
+  showPanels(["hammerBtn"]);
+  updateHeatUI();
+  say(LINE("ins.heat.010"));
+  await new Promise(res => { H.res = res; });
+  await finishStep("heat", TEXT("ins.heat.030"), "Listen with SEIS ▶");
+}
+function updateHeatUI() {
+  const H = S.heat; if (!H) return;
+  document.getElementById("hammerSub").textContent = `${H.taps} / 3`;
+  document.getElementById("hammerBtn").disabled = H.taps >= 3;
+}
+async function strike() {
+  const H = S.heat; if (S.phase !== "heat" || !H || S.busy || H.taps >= 3) return;
+  S.busy = true; H.striking = true; H.t0 = performance.now();
+  document.getElementById("hammerBtn").disabled = true;
+  await wait(480);
+  H.taps++; H.striking = false; S.busy = false; updateHeatUI();
+  if (H.taps === 3) { say(LINE("ins.heat.030")); await wait(300); H.res && H.res(); }
+  else say(LINE("ins.heat.020"));
+}
+
+// =====================================================================================
+// Step 5: listen (match two vibration traces)
+// =====================================================================================
+async function stepWave() {
+  for (;;) {
+    S.phase = "wave"; S.step = 4; setCanvas(320, 200); S.parts = [];
+    const W = S.wave = { i: 0, picked: null };
+    renderStep();
+    S.draw = () => drawWaves(waves[W.i].target, false, W.picked);
+    sceneNote("Illustrated signals · Practice patterns");
+    for (let i = 0; i < waves.length; i++) {
+      W.i = i; W.picked = null; const wave = waves[i]; renderStep();
+      const grid = document.createElement("div"); grid.className = "answers three waiting";
+      await new Promise(res => {
+        wave.choices.forEach((points, j) => {
+          const b = answerBtn(`Pattern <span class="digits">${j + 1}</span>`, tracePic(points), "Pattern " + (j + 1) + ", heights " + points.join(", "), () => {
+            if (j !== wave.answer) { wrongAnswer(b); say(LINE("ins.wave.060")); return; }
+            W.picked = points; b.classList.add("right"); grid.querySelectorAll(".answer").forEach(x => { x.onclick = null; }); res();
+          }, 2);
+          b.dataset.j = j; grid.append(b);
+        });
+        p3Panel("", grid);
+        say(Voice.step(i ? [LINE("ins.wave.030"), LINE("ins.wave.040"), LINE("ins.wave.050")] : [LINE("ins.wave.010"), LINE("ins.wave.020"), LINE("ins.wave.050")]));
+      });
+      if (i < waves.length - 1) await say(LINE("ins.wave.070"), { next: true });
+    }
+    const r = await finishStep("wave", TEXT("ins.wave.040"), "Next ▶");
+    if (r !== "replay") return;
+  }
+}
+
+// =====================================================================================
+// Step 6: learning check, then a look inside Mars
+// =====================================================================================
+async function stepCheck() {
+  for (;;) {
+    S.phase = "check"; S.step = 5; renderStep(); setCanvas(320, 200); S.parts = [];
+    const C = S.check = { right: false };
+    S.draw = () => C.right ? drawInterior() : drawWaves(waves[waves.length - 1].target);
+    sceneNote("Illustrated signal · Practice pattern");
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `<h3 class="qbig qpop">What was SEIS listening for?</h3>`;
+    const grid = document.createElement("div"); grid.className = "answers waiting"; wrap.append(grid);
+    await new Promise(res => {
+      const b1 = answerBtn("Vibrations moving through Mars", checkPic("vibes"), null, () => {
+        b1.classList.add("right"); grid.querySelectorAll(".answer").forEach(x => { x.onclick = null; }); C.right = true; res();
+      }, 3);
+      const b2 = answerBtn("A camera looking through the ground", checkPic("camera"), null, () => {
+        wrongAnswer(b2); say(LINE("ins.check.020"));
+      }, 3);
+      grid.append(b1, b2);
+      p3Panel("", wrap);
+      say(LINE("ins.check.010"));
+    });
+    sceneNote("Mars interior · Simplified illustration");
+    say(LINE("ins.check.030"));
+    const r = await finishStep("check", `<b>A look inside Mars:</b> ${TEXT("ins.check.030")}`, "Real Mission ▶");
+    if (r !== "replay") return;
+  }
+}
+
+// =====================================================================================
+// Story time, FULL SCREEN with real NASA pictures and the marsquake video (house style, as in Phoenix)
+// Person 1's lines, images, credit, source and people come from storytimes/stories.js, as they are.
+// =====================================================================================
+const STORY_MEDIA = "../storytimes/media/";
+const QUAKE_TEXT = "On April 6, 2019, I detected a seismic event. Scientists thought it was a likely marsquake. My recording also holds noise from Martian wind and from the lander's robotic arm moving to take pictures. NASA sped up the sound 60 times, so now you can hear what I recorded.";   // shown, not spoken: the clip has its own sound (owner, 2026-11-15)
+const QUAKE_SRC = "https://science.nasa.gov/resource/first-likely-marsquake-heard-by-nasas-insight/";
+const QUAKE_CREDIT = "NASA/JPL-Caltech/CNES/IPGP/Imperial College London";
+function storyParts(id, story) {
+  const imgs = story.images || [], ppl = story.people;
+  const PIC_TITLE = { PIA23176: "InSight's Sol 128 seismic event, April 6, 2019", PIA22925: "Vibrations from InSight's first 20 minutes on Mars" };   // NASA's own picture titles
+  const chart = n => { const pic = imgs[Math.min(n, imgs.length - 1)]; return pic ? [{ src: STORY_MEDIA + pic + ".jpg", kind: "NASA chart", alt: "InSight seismic evidence, " + pic, caption: PIC_TITLE[pic] ? `${PIC_TITLE[pic]} (${pic})` : pic, credit: story.credit, source: story.source }] : []; };
+  const person = () => ({ src: STORY_MEDIA + "people-" + id + ".jpg", alt: ppl.alt, caption: ppl.caption, credit: ppl.credit, source: ppl.source });
+  const titles = ["Meet SEIS", "Listening for marsquakes", "The last message"];
+  const parts = [];
+  story.lines.forEach((line, n) => {
+    const seisPhoto = [{ src: "media/insight/PIA22956.jpg", alt: "InSight's robotic arm setting the copper-colored SEIS seismometer down on the reddish ground of Mars",
+      caption: "InSight's arm sets SEIS down on Mars, Dec. 19, 2018 (PIA22956)", credit: "NASA/JPL-Caltech", source: "https://science.nasa.gov/photojournal/seis-deployed-on-mars/" }];
+    // page 1 shows SEIS itself (owner, 2026-11-15: parts 1 and 3 showed the same marsquake picture)
+    parts.push({ title: titles[n] || "InSight", line: Voice.story(id, n), media: n === 0 ? seisPhoto : ppl && ppl.beat === n ? [person()] : chart(n) });
+    if (n === 1) parts.push({ title: "Hear a likely marsquake", line: { who: "seis", text: QUAKE_TEXT }, quiet: true, media: [{ type: "video" }] });   // the NASA video page: the words are shown, the clip plays its own sound
+  });
+  return parts;
+}
+function stFigure(m) {
+  const tagHtml = m.kind === "NASA chart" ? `<span class="st-tag map">NASA chart</span>` : "";   // a label only on charts; photos and video carry none
+  if (m.type === "video") return `<figure class="st-fig"><div class="st-frame">
+      <video id="quakeVid" data-sound autoplay loop muted playsinline preload="auto" disablepictureinpicture poster="media/insight-marsquake-chart.jpg" src="media/insight-marsquake-chart.webm" aria-label="NASA visualization and sound from the first likely marsquake"></video></div>
+      <figcaption class="st-credit"><a href="${QUAKE_SRC}" target="_blank" rel="noopener">${QUAKE_CREDIT} · Video source</a></figcaption></figure>`;
+  return `<figure class="st-fig"><div class="st-frame">${tagHtml}<img src="${m.src}" alt="${m.alt}" loading="eager"></div>
+      <figcaption class="st-credit">${m.caption}${m.credit ? ` · <a href="${m.source}" target="_blank" rel="noopener">${m.credit}</a>` : ""}</figcaption></figure>`;
+}
+function wireVideo() {                            // the clip has its own sound (data-sound): stage.js plays it muted while SEIS reads the page,
+  const v = document.getElementById("quakeVid"); if (!v) return;  // then restarts it with its sound (owner, 2026-11-15)
+  if (window.stage && stage.storyVideo) stage.storyVideo(v);
+}
+async function storyTime(id) {
+  const story = window.restoreOppyStories?.[id];
+  if (!story || !story.lines || !story.lines.length) { S.progress.story = true; saveProgress(); return; }      // story missing: skip, never block the game
+  const parts = storyParts(id, story);
+  S.phase = "story"; S.step = 5; renderStep();
+  const play = document.getElementById("play"), stage = document.getElementById("storyStage");
+  play.classList.add("story"); stage.hidden = false;
+  document.getElementById("stTitle").textContent = "📖 " + (story.title || "InSight");
+  for (let i = 0; i < parts.length;) {
+    const p = parts[i];
+    document.getElementById("stPart").textContent = `Part ${i + 1} of ${parts.length} · ${p.title}`;
+    document.getElementById("stDots").innerHTML = parts.map((_, j) => `<i class="${j === i ? "on" : j < i ? "done" : ""}"></i>`).join("");
+    document.getElementById("stMedia").innerHTML = p.media.map(stFigure).join("");
+    wireVideo();
+    const r = await say(p.line, { next: true, back: i > 0, quiet: !!p.quiet });   // story.insight.<n+1> (STORY in the script file)
+    i = r === "back" ? Math.max(0, i - 1) : i + 1;
+  }
+  document.getElementById("stMedia").innerHTML = "";                      // stops the video
+  stage.hidden = true; play.classList.remove("story");
+  S.progress.story = true; saveProgress();
+  fit();
+}
+
+// =====================================================================================
+// Reward: Oppy's real high-gain antenna. Story time, gift box, fitting scene, Mission Complete
+// =====================================================================================
+const PART = { key: "antenna", name: "High-gain antenna", line: TEXT("ins.gift.020"),
+  box: { x: 2, y: 3, w: 16, h: 17 } };                                   // the layer's box in the 64 x 56 frame (art/out/oppy-parts-anchors.json)
+const PART_OF = { sojourner: "wheels", phoenix: "arm", insight: "antenna", parachute: "mast", ingenuity: "panels" };
+const PART_ORDER = ["wheels", "arm", "antenna", "mast", "panels"];
+const rewardName = () => PART.name;
+function earnedParts() {                                                 // part keys already earned in the hub save (empty if no save)
+  let h = null; try { h = JSON.parse(localStorage.getItem("oppy.hub")); } catch {}
+  const parts = (h && typeof h === "object" && h.parts && typeof h.parts === "object") ? h.parts : {};
+  return PART_ORDER.filter(k => Object.keys(PART_OF).some(m => PART_OF[m] === k && m !== "insight" && parts[m]));
+}
+const layerFrame = k => A.oppyParts.names.indexOf(k);
+function drawLayer(g, key, x, y, s = 1) {                                // one full 64 x 56 layer at x, y
+  g.drawImage(img.oppyParts, layerFrame(key) * 64, 0, 64, 56, x, y, 64 * s, 56 * s);
+}
+function drawPartCrop(g, key, box, x, y, w, h) {                         // a layer cropped to its anchor box, painted into x, y, w, h
+  g.drawImage(img.oppyParts, layerFrame(key) * 64 + box.x, box.y, box.w, box.h, x, y, w, h);
+}
+async function giftScene() {
+  S.phase = "gift"; S.step = 5; renderStep(); setCanvas(320, 200); S.parts = []; showPanels();
+  say(Voice.step([LINE("ins.gift.010"), LINE("ins.gift.020")]));
+  await giftBox({ name: PART.name, line: PART.line, size: [PART.box.w * 3, PART.box.h * 3], fast: !!S.fast,
+    draw: (g, w, h) => { g.imageSmoothingEnabled = false; drawPartCrop(g, PART.key, PART.box, 0, 0, w, h); } });
+  S.giftOpened = true;
+}
+let installResolve = null;
+function installSensor() {                                               // name kept for the test hook: it is the antenna fitting scene
+  S.phase = "install"; S.step = 5; renderStep(); setCanvas(320, 200); S.parts = [];
+  S.install = { fitted: false, lift: 0, earned: earnedParts() };
+  S.draw = drawInstall; sceneNote("Oppy's real antenna");
+  showPanels(["fitBtn"]);
+  document.getElementById("fitBtn").disabled = false; document.getElementById("fitBtn").onclick = fitSensor;
+  say(LINE("ins.bench.010"));
+  return new Promise(res => { installResolve = res; });
+}
+async function fitSensor() {
+  if (S.phase !== "install" || S.install.fitted) return;
+  S.install.fitted = true; document.getElementById("fitBtn").disabled = true;
+  await tween(reduceMotion() ? 0 : 1400, k => { S.install.lift = k; });
+  S.install.lift = 1; sparkle(120, 80, 24);
+  S.progress.installed = true; saveProgress();
+  await lines([LINE("ins.bench.020"), LINE("ins.bench.030")]);
+  installResolve && installResolve();
+}
+function drawInstall(now) {
+  drawMars(); rect(0, 0, 320, 200, "rgba(27,20,51,.25)");
+  const I = S.install || { fitted: true, lift: 1, earned: earnedParts() }, ox = 96, oy = 70, s = 2;
+  shadowEllipse(ox + 32 * s, oy + 56 * s + 1, 28 * s, 6);
+  drawLayer(cx, "base", ox, oy, s);
+  const mine = I.fitted ? Math.max(0, 1 - I.lift) : 1;                   // 1 = hovering above Oppy, 0 = landed exactly on its layer position
+  const hover = I.fitted ? 0 : Math.round(Math.sin(now / 300) * 2);
+  for (const k of PART_ORDER) {
+    if (k === PART.key) drawLayer(cx, k, ox, oy - Math.round(mine * 30 * s) + hover, s);
+    else if ((I.earned || []).includes(k)) drawLayer(cx, k, ox, oy, s);
+  }
+}
+async function missionComplete() {
+  S.phase = "complete"; S.step = 5; S.progress.done = true; saveProgress(); renderStep();
+  setCanvas(320, 200); showPanels(); sceneNote("Oppy's real antenna");
+  S.install = { fitted: true, lift: 1, earned: earnedParts() }; S.draw = (now) => { drawInstall(now); if (Math.random() < 0.08) sparkle(20 + Math.random() * 280, 20 + Math.random() * 80, 14); };
+  try { if (parent !== window) parent.postMessage({ type: "restore-oppy:mission-complete", mission: "insight" }, location.origin); } catch {}
+  say(LINE("ins.end.010"));
+  await showCard(missionsHTML("MISSION COMPLETE!", true), "DONE ✓", null, "mpanel");
+}
+async function afterSteps() {
+  if (!S.progress.story) await storyTime("insight");
+  await giftScene();
+  if (!S.progress.installed) await installSensor();
+  await missionComplete();
+}
+async function runFrom(i) {
+  const run = [stepPatch, () => stepDeploy("sensor"), () => stepDeploy("shield"), stepHeat, stepWave, stepCheck];
+  for (let k = i; k < run.length; k++) await run[k]();
+  await afterSteps();
+}
+
+// =====================================================================================
+// The mission panel ("Your mission"): six cards (house.css .mpanel)
+// =====================================================================================
+const PICS = {};
+function stepPic(i) {                              // a small picture for each card, drawn with the game's own picture code, half size
+  if (PICS[i]) return PICS[i];
+  const quarter = f => { cx.save(); cx.scale(0.25, 0.25); f(); cx.restore(); };      // the six small cards show it at 80 x 50, 1x
+  return (PICS[i] = offscreen(80, 50, () => quarter(() => {
+    if (i === 0) drawSurvey(true);
+    else if (i === 1) drawCloseup({ tool: "sensor", tip: { x: DROP.x, y: DROP.y - 30 }, released: true }, true);
+    else if (i === 2) drawCloseup({ tool: "shield", tip: { x: DROP.x, y: DROP.y - 30 }, released: true }, true);
+    else if (i === 3) drawMole(2);
+    else if (i === 4) drawWaves(waves[1].target, true);
+    else drawInterior(true);
+  })));
+}
+function missionsHTML(title, complete = false) {
+  const P = S.progress;
+  const after = [P.steps.check?.done, P.story, P.installed, P.done].filter(Boolean).length;
+  const revealed = complete || S.giftOpened || P.installed || P.done;   // the real part name only from the gift box on (owner, 2026-11-15)
+  let open = true;
+  const states = STEPS.map((s, i) => {
+    const pct = i < 5 ? (P.steps[s.id]?.done ? 100 : 0) : Math.round(after / 4 * 100);
+    const done = open && pct >= 100, state = done ? "done" : open ? "now" : "locked";      // strictly in order
+    if (!done) open = false;
+    return { pct, state };
+  });
+  const cards = STEPS.map((s, i) => {
+    const { pct, state } = states[i], done = state === "done";
+    return `<div class="mc ${state}"><span class="cnum">${i + 1}</span>${done ? '<span class="tick">✓</span>' : ""}
+      <img src="${stepPic(i)}" alt="">${state === "locked" ? '<span class="lock">🔒</span>' : ""}
+      <div class="mname">${s.name}</div><div class="mdesc">${s.desc}</div>
+      ${i !== 5 ? "" : revealed ? `<span class="reward">REWARD: ${PART.name} for Oppy</span>` : `<span class="reward mystery"><i class="giftico" aria-hidden="true"></i>A mystery part for Oppy</span>`}</div>`;
+  }).join("");
+  if (complete) {
+    return `<div class="mtitle">${title}</div>
+    <p class="msub">Your ${PART.name} is fitted on Oppy and saved.</p>
+    <div class="mgrid">${cards}</div>
+    <div class="mwhy"><b>Mission complete.</b> Super listener!</div>`;
+  }
+  return `<div class="mtitle">${title}</div>
+    <div class="mgrid">${cards}</div>
+    <div class="mwhy"><b>Why listen?</b> ${TEXT("ins.check.030")}</div>`;
+}
+const showMissions = (title, button) => showCard(missionsHTML(title), button, null, "mpanel");
+function renderMission() { renderStep(); }
+function openMissions() {
+  if (S.phase === "start" || !document.getElementById("cardOverlay").hidden) return;
+  showMissions("MISSION: INSIGHT", "CLOSE");
+}
+document.getElementById("missionBtn").addEventListener("click", openMissions);
+
+
+// =====================================================================================
+// Render loop
+// =====================================================================================
+function render(now) {
+  cx.setTransform(PX, 0, 0, PX, 0, 0); cx.imageSmoothingEnabled = false;
+  cx.clearRect(0, 0, NW, NH);
+  if (S.phase !== "story" && S.draw) { S.draw(now); stepParts(0, 0); }
+  drawPortrait(now);
+  requestAnimationFrame(render);
+}
+
+// =====================================================================================
+// Keys
+// =====================================================================================
+addEventListener("keydown", e => {
+  if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const ov = !document.getElementById("cardOverlay").hidden;
+  if (ov) { if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); cardResolve && cardResolve(); } return; }
+  if (S.phase === "start") { if (e.key === "Enter") { e.preventDefault(); begin(); } return; }
+  if (e.key === "v" || e.key === "V") return voiceBtn.click();
+  if (nextResolve && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); return nextResolve("next"); }
+  if (nextResolve && (e.key === "b" || e.key === "B") && !document.getElementById("backBtn").hidden) return nextResolve("back");
+  if (solvedResolve && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); return solvedResolve(); }
+  if (S.phase === "sensor" || S.phase === "shield") {
+    const m = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" }[e.key];
+    if (m) { e.preventDefault(); flash(`.k-${m}`); return nudgeTip(m); }
+    if (e.key === " ") { e.preventDefault(); flash("#setDownBtn"); return setDown(); }
+    if (e.key === "h" || e.key === "H") return armHint();
+  }
+  if (S.phase === "heat" && e.key === " ") { e.preventDefault(); return strike(); }
+  if (S.phase === "patch" && "123".includes(e.key) && e.key) return pickPatch(["rocky", "flat", "sloped"][+e.key - 1]);
+  if ((S.phase === "wave" || S.phase === "check") && "123".includes(e.key) && e.key) { const bs = document.querySelectorAll(".answer"); const b = bs[+e.key - 1]; if (b && b.onclick) b.click(); return; }
+  if (S.phase === "install" && e.key === " ") { e.preventDefault(); return fitSensor(); }
+});
+function flash(sel) { const b = document.querySelector(sel); if (!b) return; b.classList.add("flash"); setTimeout(() => b.classList.remove("flash"), 120); }
+document.querySelectorAll(".key[data-m]").forEach(b => b.onclick = () => nudgeTip(b.dataset.m));
+document.getElementById("setDownBtn").onclick = setDown;
+document.getElementById("armHintBtn").onclick = armHint;
+document.getElementById("hammerBtn").onclick = strike;
+document.getElementById("restartBtn").onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch {} location.reload(); };
+
+// =====================================================================================
+// Start, dev menu, test hook
+// =====================================================================================
+document.getElementById("devPanel").hidden = !DEV;
+if (QS.get("jump")) document.getElementById("devJump").value = QS.get("jump");
+document.getElementById("devGo").onclick = () => { location.search = "?dev=1&jump=" + document.getElementById("devJump").value; };
+document.getElementById("devReset").onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch {} location.search = "?dev=1"; };
+function devProgress(n) {                          // pretend the first n steps are done, each marked done
+  const P = S.progress; P.intro = true; P.steps = {}; P.story = false; P.installed = false; P.done = false;
+  STEPS.slice(0, n).forEach(s => { P.steps[s.id] = { done: true }; });
+  renderMission();
+}
+const cardsIntro = async () => { say(LINE("ins.cards.010")); await showMissions("MISSION: INSIGHT", "Let's go ▶"); };
+const JUMP = {
+  start: async () => { try { localStorage.removeItem(SAVE_KEY); } catch {} S.progress = loadProgress(); await begin(true); },   // a fresh start
+  opening: async () => { devProgress(0); S.progress.intro = false; await openingScene(); await cardsIntro(); runFrom(0); },
+  cards: async () => { devProgress(0); S.phase = "scene"; S.step = -1; setCanvas(320, 200); S.draw = drawOpening; await cardsIntro(); runFrom(0); },
+  patch: () => { devProgress(0); runFrom(0); },
+  sensor: () => { devProgress(1); runFrom(1); },
+  shield: () => { devProgress(2); runFrom(2); },
+  heat: () => { devProgress(3); runFrom(3); },
+  wave: () => { devProgress(4); runFrom(4); },
+  learning: () => { devProgress(5); runFrom(5); },
+  story: () => { devProgress(6); afterSteps(); },
+  gift: () => { devProgress(6); S.progress.story = true; afterSteps(); },
+  reward: () => JUMP.gift(),
+  install: async () => { devProgress(6); S.progress.story = true; await installSensor(); missionComplete(); },
+  complete: () => { devProgress(6); Object.assign(S.progress, { story: true, installed: true }); missionComplete(); },
+};
+async function begin(force = false) {
+  if (S.phase !== "start" && !force) return;
+  document.getElementById("startOverlay").hidden = true;
+  S.phase = "boot"; renderMission();
+  // No Oppy briefing here: the game shell introduces Oppy once, at the start.
+  if (!S.progress.intro) { await openingScene(); await cardsIntro(); return runFrom(0); }
+  const i = STEPS.findIndex((s, k) => k < 5 && !S.progress.steps[s.id]?.done);
+  if (i >= 0) return runFrom(i);
+  if (!S.progress.steps.check?.done) return runFrom(5);
+  if (!S.progress.done) return afterSteps();
+  runFrom(0);
+}
+document.getElementById("startBtn").onclick = () => begin();
+Promise.all(Object.keys(A).map(load)).then(() => {
+  fit(); renderMission(); requestAnimationFrame(render);
+  const jump = QS.get("jump");
+  if (DEV && jump && JUMP[jump]) { document.getElementById("startOverlay").hidden = true; S.phase = "boot"; JUMP[jump](); }
+  window.__ins = {
+    S, STEPS, waves, jumps: JUMP, runFrom, afterSteps, stepPatch, pickPatch, nudgeTip, moveTip, setDown, strike, storyTime, giftScene, installSensor, fitSensor, missionComplete, openMissions, showMissions, begin,
+    get phase() { return S.phase; }, get step() { return S.step; },
+    get done() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { return null; } },
+  };
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+{
+  "frames": [
+    {
+      "filename": "phoenix-bits 0",
+      "label": "pebble",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 20
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-bits 1",
+      "label": "rock",
+      "frame": {
+        "x": 24,
+        "y": 0,
+        "w": 24,
+        "h": 20
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-bits 2",
+      "label": "pile",
+      "frame": {
+        "x": 48,
+        "y": 0,
+        "w": 24,
+        "h": 20
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-bits 3",
+      "label": "pile",
+      "frame": {
+        "x": 72,
+        "y": 0,
+        "w": 24,
+        "h": 20
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-bits 4",
+      "label": "pile",
+      "frame": {
+        "x": 96,
+        "y": 0,
+        "w": 24,
+        "h": 20
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_phoenix_sprites.mjs",
+    "image": "phoenix-bits.png",
+    "size": {
+      "w": 120,
+      "h": 20
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "pebble",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "rock",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "pile",
+        "from": 2,
+        "to": 4,
+        "direction": "forward"
+      }
+    ]
+  }
+}

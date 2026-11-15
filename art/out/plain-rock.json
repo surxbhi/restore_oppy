@@ -1,0 +1,32 @@
+{
+  "frames": [
+    {
+      "filename": "plain-rock 0",
+      "label": "rock",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "plain-rock.png",
+    "size": {
+      "w": 40,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "rock",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      }
+    ]
+  }
+}

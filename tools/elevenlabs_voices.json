@@ -1,0 +1,17 @@
+{
+  "model": "eleven_v3",
+  "voices": {
+    "curiosity": "hpp4J3VqNfWAUOO0d1Us",
+    "oppy": "JBFqnCBsd6RMkjVDRZzb",
+    "sojourner": "CwhRBWXzGAHq8TQ4Fs17",
+    "scoop": "FGY2WhTYpPnrIDTdsKH5",
+    "phoenix": "FGY2WhTYpPnrIDTdsKH5",
+    "seis": "SAz9YHcvj6GT2YYXdXww",
+    "insight": "SAz9YHcvj6GT2YYXdXww",
+    "chute": "IKne3meq5aSn9XLyUdCD",
+    "perseverance": "Xb7hH8MSUJpSbSDYk0k2",
+    "ingenuity": "TX3LPaxmHKxFdv7VOQHJ"
+  },
+  "names": { "curiosity": "Bella", "oppy": "George", "sojourner": "Roger", "scoop": "Laura", "phoenix": "Laura", "seis": "River", "insight": "River", "chute": "Charlie", "perseverance": "Alice", "ingenuity": "Liam" },
+  "settings": { "stability": 0.5 }
+}

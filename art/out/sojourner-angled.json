@@ -1,0 +1,155 @@
+{
+  "frames": [
+    {
+      "filename": "sojourner-angled 0",
+      "label": "idle",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 1",
+      "label": "idle",
+      "frame": {
+        "x": 58,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 2",
+      "label": "talk",
+      "frame": {
+        "x": 116,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 3",
+      "label": "talk",
+      "frame": {
+        "x": 174,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 4",
+      "label": "drive",
+      "frame": {
+        "x": 232,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 5",
+      "label": "drive",
+      "frame": {
+        "x": 290,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 6",
+      "label": "worried",
+      "frame": {
+        "x": 348,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 7",
+      "label": "worried",
+      "frame": {
+        "x": 406,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 8",
+      "label": "happy",
+      "frame": {
+        "x": 464,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-angled 9",
+      "label": "happy",
+      "frame": {
+        "x": 522,
+        "y": 0,
+        "w": 58,
+        "h": 52
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "sojourner-angled.png",
+    "size": {
+      "w": 580,
+      "h": 52
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "talk",
+        "from": 2,
+        "to": 3,
+        "direction": "forward"
+      },
+      {
+        "name": "drive",
+        "from": 4,
+        "to": 5,
+        "direction": "forward"
+      },
+      {
+        "name": "worried",
+        "from": 6,
+        "to": 7,
+        "direction": "forward"
+      },
+      {
+        "name": "happy",
+        "from": 8,
+        "to": 9,
+        "direction": "forward"
+      }
+    ]
+  }
+}

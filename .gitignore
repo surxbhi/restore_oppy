@@ -1,0 +1,17 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.netrc
+.vercel
+
+# Generated or local files
+node_modules/
+.venv/
+__pycache__/
+.DS_Store
+prototype/script/SCRIPT.md
+prototype/script/script.csv
+tools/sample/

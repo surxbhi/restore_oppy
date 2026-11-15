@@ -1,0 +1,32 @@
+{
+  "frames": [
+    {
+      "filename": "perse-canopy 0",
+      "label": "below",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_perseverance_sprites.mjs",
+    "image": "perse-canopy.png",
+    "size": {
+      "w": 128,
+      "h": 128
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "below",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "_about": "Phoenix 'The Clue That Vanished': the four cases. One source of truth: the game inlines this file at build time and tools/verify_phoenix_cases.py checks it. Picture is 160 x 100; the trench floor is the rectangle TRENCH (x, y, w, h), split into cols x rows squares. Square codes: s = 1 layer of soil, S = 2 layers, i = 1 layer then the icy layer, I = 1 layer then HARD ice (needs the rasp), J = 2 layers then hard ice, # = a rock (not dug). Chunks sit only on icy squares; fate gone = vanished by Sol 24, stays = still there. Only case 1 is modelled on a real trench (Dodo-Goldilocks); cases 2-4 are made-up game cases.",
+  "trench": [24, 24, 112, 56],
+  "cases": [
+    { "id": "phoenix-1", "name": "Dodo-Goldilocks", "diff": 1, "compare": "side",
+      "squares": ["iis"], "start": [0, 0],
+      "chunks": [{ "x": 44, "y": 56, "fate": "gone" }],
+      "pebbles": [], "shadow": false, "pile": false,
+      "intro": "Dig the trench. Look for bright chunks!" },
+    { "id": "phoenix-2", "name": "Hard Ground", "diff": 2, "compare": "side",
+      "squares": ["iIIs"], "start": [0, 0],
+      "chunks": [{ "x": 66, "y": 50, "fate": "gone" }, { "x": 94, "y": 64, "fate": "gone" }],
+      "pebbles": [{ "x": 124, "y": 60 }], "shadow": false, "pile": false,
+      "intro": "Some ground is HARD. Switch to the rasp!" },
+    { "id": "phoenix-3", "name": "Rock in the Way", "diff": 3, "compare": "blink",
+      "squares": ["iI#", "iIs"], "start": [0, 1],
+      "chunks": [{ "x": 40, "y": 42, "fate": "gone" }, { "x": 74, "y": 44, "fate": "gone" }, { "x": 50, "y": 68, "fate": "gone" }, { "x": 82, "y": 70, "fate": "stays" }],
+      "pebbles": [{ "x": 120, "y": 68 }], "shadow": true, "pile": false,
+      "intro": "Dig around the rock!" },
+    { "id": "phoenix-4", "name": "The Big Dig", "diff": 4, "compare": "blink",
+      "squares": ["JIi", "SiJ"], "start": [0, 0],
+      "chunks": [{ "x": 38, "y": 40, "fate": "gone" }, { "x": 74, "y": 42, "fate": "gone" }, { "x": 116, "y": 44, "fate": "gone" }, { "x": 84, "y": 70, "fate": "gone" }, { "x": 120, "y": 70, "fate": "stays" }],
+      "pebbles": [{ "x": 40, "y": 70 }], "shadow": true, "pile": true,
+      "intro": "The biggest dig! Deep soil, hard ice, and lots to compare." }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "frames": [
+    {
+      "filename": "phoenix-scene 0",
+      "label": "wide",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 560,
+        "h": 200
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_phoenix_sprites.mjs",
+    "image": "phoenix-scene.png",
+    "size": {
+      "w": 560,
+      "h": 200
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "wide",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      }
+    ]
+  }
+}

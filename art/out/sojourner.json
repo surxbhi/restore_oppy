@@ -1,0 +1,155 @@
+{
+  "frames": [
+    {
+      "filename": "sojourner 0",
+      "label": "idle",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 1",
+      "label": "idle",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 2",
+      "label": "talk",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 3",
+      "label": "talk",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 4",
+      "label": "drive",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 5",
+      "label": "drive",
+      "frame": {
+        "x": 200,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 6",
+      "label": "worried",
+      "frame": {
+        "x": 240,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 7",
+      "label": "worried",
+      "frame": {
+        "x": 280,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 8",
+      "label": "happy",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner 9",
+      "label": "happy",
+      "frame": {
+        "x": 360,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "sojourner.png",
+    "size": {
+      "w": 400,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "talk",
+        "from": 2,
+        "to": 3,
+        "direction": "forward"
+      },
+      {
+        "name": "drive",
+        "from": 4,
+        "to": 5,
+        "direction": "forward"
+      },
+      {
+        "name": "worried",
+        "from": 6,
+        "to": 7,
+        "direction": "forward"
+      },
+      {
+        "name": "happy",
+        "from": 8,
+        "to": 9,
+        "direction": "forward"
+      }
+    ]
+  }
+}

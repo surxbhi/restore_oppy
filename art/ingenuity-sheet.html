@@ -1,0 +1,351 @@
+<title>Ingenuity Model Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Layout: one-column model sheet, same night-sky arcade look as the Sojourner sheet and the game.
+     Deliberately single-theme (dark), so every colour is set here. */
+  :root {
+    --night: #1b1433; --night-2: #261c48; --line: #3d2f6b; --ink: #f4efff; --muted: #b5a8dc;
+    --pink: #ff7ad9; --cyan: #7ff7ff; --lime: #b8ff7a; --yellow: #fff27a; --sand: #e8643c;
+    --display: "Pixelify Sans", "Courier New", monospace;
+    --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { background: var(--night); color: var(--ink); }
+  body { font: 16px/1.55 var(--body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; }
+  main { max-width: 1040px; margin: 0 auto; display: grid; gap: 36px; }
+  h1, h2 { font-family: var(--display); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: .5px; }
+  h1 { font-size: clamp(32px, 6vw, 52px); color: var(--cyan); }
+  h2 { font-size: 24px; color: var(--ink); }
+  .eyebrow { font-family: var(--display); color: var(--pink); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; }
+  .lede { color: var(--muted); max-width: 64ch; margin: 8px 0 0; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+
+  .stage-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+  @media (max-width: 760px) { .stage-wrap { grid-template-columns: 1fr; } }
+  #stage { width: 100%; height: auto; border-radius: 16px; border: 3px solid var(--line); background: var(--night-2); }
+  .controls { display: grid; gap: 16px; min-width: 0; }
+  .group { display: grid; gap: 8px; }
+  .group-label { font-family: var(--display); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.chip { font: 600 15px var(--body); color: var(--ink); background: var(--night-2); border: 2px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  button.chip[aria-pressed="true"] { border-color: var(--cyan); color: var(--night); background: var(--cyan); }
+  button.chip:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+  .caption { font-size: 14px; color: var(--muted); margin: 0; }
+
+  .turn { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 560px) { .turn { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  figure { margin: 0; display: grid; gap: 8px; justify-items: center; text-align: center; align-content: start; }
+  figure canvas { width: 100%; max-width: 180px; height: auto; background: var(--sand); border-radius: 12px; border: 3px solid var(--night-2); }
+  figcaption { font-family: var(--display); font-size: 15px; }
+  figcaption small { display: block; font-family: var(--body); color: var(--muted); font-size: 13px; }
+
+  .frames { display: grid; gap: 14px; }
+  .frame-row { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px; align-items: center; }
+  .frame-row > span { font-family: var(--display); color: var(--muted); }
+  .strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .strip figure canvas { width: 72px; background: #2e2357; border-color: var(--line); }
+  .strip figcaption { font-family: var(--body); font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  .ground { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 560px) { .ground { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tag { display: inline-block; font: 700 12px var(--body); letter-spacing: .5px; padding: 2px 8px; border-radius: 999px; margin-top: 4px; }
+  .tag.ok { background: var(--lime); color: var(--night); }
+  .tag.over { background: var(--yellow); color: var(--night); }
+  .tag.no { background: var(--pink); color: var(--night); }
+  .tag.photo { background: var(--cyan); color: var(--night); }
+
+  .flights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  @media (max-width: 700px) { .flights { grid-template-columns: 1fr; } }
+  .flights figure { justify-items: start; text-align: left; }
+  .flights figure canvas { max-width: 100%; width: auto; border-radius: 10px; }
+  .flights figcaption small { margin-top: 2px; }
+  .notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  @media (max-width: 700px) { .notes { grid-template-columns: 1fr; } }
+  .notes > div { min-width: 0; }
+  .notes ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+  .src { color: var(--yellow); font-size: 13px; font-weight: 700; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .sw { display: grid; gap: 4px; justify-items: center; font-size: 12px; color: var(--muted); }
+  .sw i { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--night-2); outline: 2px solid var(--line); }
+  #lineup { width: 100%; height: auto; border-radius: 16px; border: 3px solid var(--line); }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Restore Oppy · art test</div>
+    <h1>Ingenuity</h1>
+    <p class="lede">The Mars helicopter, drawn chunky to match Sojourner: big shapes, one outline, two tones per part, huge eyes on its body.
+      Two rotors on a mast with the solar panel on top, a small box body and four long legs. All art is drawn in code at 40 × 40 pixels
+      and shown enlarged.</p>
+  </header>
+
+  <section class="stage-wrap" aria-label="Animated preview">
+    <canvas id="stage" width="240" height="150" aria-label="Ingenuity animated over a Mars board"></canvas>
+    <div class="controls">
+      <div class="group">
+        <div class="group-label">View</div>
+        <div class="chips" id="viewChips"></div>
+      </div>
+      <div class="group">
+        <div class="group-label">Animation</div>
+        <div class="chips" id="animChips"></div>
+      </div>
+      <div class="group">
+        <div class="group-label">On the board</div>
+        <div class="chips"><button class="chip" id="demoBtn" aria-pressed="true">▶ Fly a plan</button></div>
+        <p class="caption">Takes off from its airfield, flies over a rock, turns to point its camera at the striped rock and takes a photo,
+          then lands on a new airfield. The shadow stays on the ground and drifts down-right as it climbs. The ring shows its front.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Every 45°</h2>
+    <p class="lede">Eight headings for the board, rotors spinning. Up shows its back (battery hatch), down shows its face.
+      The three left-facing views are the right-facing ones flipped.</p>
+    <div class="turn" id="turn" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <h2>Every frame</h2>
+    <p class="lede">Rotors still on the ground, four spin frames in the air. The two rotors turn opposite ways, so their blades cross.</p>
+    <div class="frames" id="frames" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <h2>The ground it reads</h2>
+    <p class="lede">Plain sand is fine to fly over but not to land on. On the board nothing is highlighted; the child learns these on the briefing card.</p>
+    <div class="ground" id="ground" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <h2>Four real flights</h2>
+    <p class="lede">Each puzzle is a kind of flight Ingenuity really flew, and each adds one new idea. Best moves rise 5, 7, 11, 14.
+      Shown with Ingenuity at its start, facing its start direction.</p>
+    <div class="flights" id="flights" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <h2>Size line-up</h2>
+    <p class="lede">The real helicopter is about as tall as Curiosity's wheel is wide. It is drawn larger here so its face reads.</p>
+    <canvas id="lineup" width="320" height="110" style="margin-top:14px" aria-label="Curiosity next to Ingenuity on the ground and in the air"></canvas>
+  </section>
+
+  <section class="notes">
+    <div>
+      <h2>Real hardware kept</h2>
+      <ul>
+        <li>Two stacked rotors that spin opposite ways, about 2,400 rpm, to lift it in Mars's thin air.</li>
+        <li>A solar panel on top of the mast that charges its batteries.</li>
+        <li>A small box body (1.8 kg in all) on four legs.</li>
+        <li>Two cameras under the body: a colour camera tilted toward the horizon (the "nose" here) and a black-and-white
+          navigation camera looking straight down at the ground.</li>
+        <li>A damaged blade tip (one frame), for the story of its last flight. <span class="src">[source: how the damage looked]</span></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Style rules</h2>
+      <ul>
+        <li>One dark outline, two tones per part, no fiddly detail.</li>
+        <li>Eyes on the body, never on rotors or legs.</li>
+        <li>Every view fills the same 36 × 38 box, so it never changes size when it turns.</li>
+        <li>Spinning rotors show as a pale blur line plus the blades' current length.</li>
+        <li>No glow. Pink marks the rotor hubs and feet; the tool grey from Sojourner is reused for the camera.</li>
+      </ul>
+      <div class="swatches" id="swatches"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const SH = {"side":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAggAAAAoCAYAAACbzwJ8AAAFSUlEQVR4nO3dv4oUQRDH8XkT830EE3MfQQRzAx9AEI1MfQHBwMTIWGMjMTESBDE2EARBDVducZexb/71VPX0r3q+DQ3LcNPzuequrr7xOLuORvvXDjduHz36Xn00Ws1GftCqNvUFiM9me/X86NJLGNV9nfj84mvbR36036Tjp74A8dls9+98c+2eRnVfJz6/+Nr2kR9+RtUCLB0/9QWIDx8+fPjwWYyqBVg+fupAfFrGUj/BqfrU5xdf2z5vo7Jtj/Or7nNH7q2AKPtyXp0dH34+9Vqv27x8nqa+TXF+8e3D15EfErYIxlW2nE3fs4AsXaT4bL4XX74f3/8+nnr/889fy/rZdu5L7xt7buob+pqcz6lv7TjnzyXypuQBS3394bP51PNDPX5L8qdmAa4Vv8W4pRu+dwEZ6308Pptvat7fvvu6qKe+pfetSZbc1k+OfpJ4PmNswyw9v2PPTb9/5fWHr0z+Lm2l8yNC/JQPMDXjt2gd5BQK7wKypLDgs/nm5r76CdWhpb6tnqlwwFJff/jK5W/OWi2VH+rxUz/A1Ipf1jpQPmHhs/s85p0DwvBzFeKnvv7w2XzWVjo/lON3ED/A1IpfMxOMz+7jdxD4HQTyI65PPT/U44fP4DsEeAWDb71vqqiUPkEvcVjbgd9BkF5/+Mrk79JWOj8ixE+5AMvHL6dQ1Po3JHy2V1hTyV0yQaybT455zlfCoXDAUl9/+Mrl79h62DI/1OOnXoDV4ze5qBROWPjsvpxk//T1x6pueW5UX+n5LeEgP+L5ctZBjfxQjt8hQAFWjl+IBYivvO9sW9tKG9V9nfj84mvbFzU/0uI0dr3VA0yE+GXhVBcgPrttrKeOqesljOq+Tnx+8bXtsxxctjrIKMcvNSoWYOn4qW/Q6gkSOX5ji23LRRjZpz6/+Ow+9f1F3Vd7fjvxAiwfv+gbtHKCqMcPHz58cfcXdV+E+U0NU9f3GD95IAmyja//mm3sOr6484sv36e+v5yfmb4iH7tO/sZafwrxkwdGTmD1+KWG1JdexxdzfvGt86kX4CHT3PUtfeSvj69m/OSBLRwQVOOXJsJx4ATdv44v5vziW+dTL8BR9j/y1+arGT954FwCp33u+pY+9fillrnr+GLNLz6bT70Aq/uG2tR11p9e/EJv0OoJohy/47OPpz4Uo/Tz+evwxZlffD4+1f1lKj+u/URMfsza+pax63uMX9gNGp/NN7fRDd2HL878qhcQfDbfXG4M5Ujt+PXf5NbOj4tT9ACjEr+wGzS+fN/L1x9WdXwx5jdSAcGX71uSC4fTXwZ8c+pXn9XyIy1uteZXpQCrxy/UBo3PZrT4StnUferz25qvZoFT9HXkh5tPsQCrx+8/pOICxOdrvOo3bz249KlkefT01aXv2ac+v/ja9nXkh9mmXICV43cNqbgA8fn47t57cup9X/rK9Nz7tqv++I/v/2Uf0ac+v/ja9pEfNptyAVaO3wWovgDx2W2pY+qeLRNY2Zca1eYXX9s+8sPHp1yApeOnvgDx+dly77Xc34JvyKg0v/ja9pEfPj7lAiwdP/UFiK+OrcQ40XzWsfe+/vDVs5UYx3vsrefXUoD3uP7kFyA+fPjw4cPnMe7aArzL+HkPyniMx3iMx3iMpzJeqQKs+v26jbfLExE+fPjw4duVr0QBbjp+pXBe4+PDhw8fPnwePu8C3Gz8PF+55CKXPAsfPnz48OHDt7HvcPrzoJ+v9VInmNxn4cOHDx8+fPi298kD8eHDhw8fPnzb+y43pt0bZ3kWPnz48OHDh297H41Go9FoNFr3F2kwoCUihwaxAAAAAElFTkSuQmCC","tags":[{"name":"idle","from":0,"to":1,"direction":"forward"},{"name":"fly","from":2,"to":5,"direction":"forward"},{"name":"talk","from":6,"to":7,"direction":"forward"},{"name":"happy","from":8,"to":9,"direction":"forward"},{"name":"worried","from":10,"to":11,"direction":"forward"},{"name":"broken","from":12,"to":12,"direction":"forward"}],"w":40,"h":40},"front":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAoCAYAAACPQCMpAAAD2UlEQVR4nO3dsYoUQRDG8XkT830EE3MfQQRzAx/gQDQy9QUEA5OLjDU2EhMjQZCLDQRBUMORHexlrunu65mumv365t9Q3Hp92/1zqmpmdji4YWAw/o/DnfujRezVx7jlQ70A8bXZLl+NJuFhVPcN4vnFZ4BTLkB8bbbHD76bhqVR3TeI5xefAU65APHhw4fPyycPxKdl9LpDUPWp5xefGHJvDaLsW/JsZbz4OsW5nsdY+SxNc5tifvEtALTGmgapLVJ8bb7X336MH/+MU8xf//pdF8EWovZ9uX1jX+pnlryOfWvXCa89+sbzAqJef9K+4zdqC9q6QXIxR+Jr85Wa5v2Hq6qIfbXvW9LEa8e8OeZNYrlH7oTpnd/cvvH/X7n+1H2LGsG6QWoaB1+brzRU7mBaR+zbak+FC4h6/an7TkjZW1R8zb5S83j6ah2tI/Ztua/C8VOvP3WfPBBfm49ngDwDpD8yvoP4Z3R8jc84Ck2j8BGudRx4Bihdf+o++c/o+AyecWSGyh3MkrHW5+FQuICo15+6r1hUEreo+Jp9S5r6y9XPVeF1wlP2eefXw0F/NNSBWgHis7etHd5Gdd8gnt+efKmTVmwxPbEtwakWIL52W4jU3rXzXndayr5BPL/4jHCqBdhyZdviStfT8SsVWM383n3q+aU/GoE9FKBygtWP33xMz14KvtQ8Pu389tQfKvmVB5Jge9+1B9AJX24en3Z+e+kPpfzKA0mwrS9+uBz7SvP4tPMb9phHqgdy83vMrzywtxOg8vHDd7t9uRPeknlPn+LxkwdyArT1zQ1h1M7j085vD/2hll95YHyFSsWSeU+f+vGbG+K9a+b37ushvz2cAHM5vGne/QSoXoDqCVY+fuPLz1Okjknq9ck7e9+efer5pT8ageoFiK/Nd4w3bz8lI9yx5Oa3ahBln3p+S77UpyEFX5iLv27p66YA8bUbc/vfFJ42dZ96fm/yxSdARd/86zn6Q7oA8dkZ7957copQVE9fXF6LrT4a9eRTz2/JNz2LvHg3RekEuPf+kC5AfO22h4+eX/MdvxdMz/6OU4R/z+8Yju87hneDKPsG8fziM8ApFyC+dlvYI0SYiwswdngb1X2DeH7xGeFUCxCfnS33M7F7zTq30ZdaWym/+IxxuZ+hQfrzWa+5t/Vq16T+OvWpFyDrsR7rsZ7Leuc84+PDhw/f2dZ1/UxtsD4+fPjwuazvjWvdBx8+fPjM9zls/DtTKWRpT3z48OFz8R0Sf1za4w9Mr90THz58+Lx88kB8+PDh8/Kd3hCHF27Nnvjw4cPn5WMwGIxdjX938idFV8QCpQAAAABJRU5ErkJggg==","tags":[{"name":"idle","from":0,"to":1,"direction":"forward"},{"name":"fly","from":2,"to":5,"direction":"forward"},{"name":"happy","from":6,"to":6,"direction":"forward"},{"name":"worried","from":7,"to":7,"direction":"forward"}],"w":40,"h":40},"back":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAoCAYAAAC7HLUcAAACf0lEQVR4nO3cMUrEQBTG8bmJ/R7FI4hg7xEEwcpTiBY2W9lbW4m9IMiWYiEIwtpGshAJY5KdTN5k/mO+gQcpNm9+vpfMZiSscxqzjdXBYWURS/XhB72AZF+dd31VmUQKI93n4P3FF5Dsq/OdHr2bhqWR7nPw/uILKJ98WW9gOpDuszam+gam+kroL7qAZN+YZ+Pq7GUXuZ6nrXyWprYta38tNj8xDQ4tMt138/pRPX5Xu2gff23DorE1EXpe37y+r+szY459X2ye5jjFdZlsgak/GNoQ6wb3RRtP9w3V9f5hExS+L/S8VCu2/3f4Put5+26o1P3tm/dPAUIbYt3gkMbTffsuruwroMHwfXPNiVlg6I8wdJ9FXXWDdM+LqB/9AqT7tAfRHkR7EO1BtAchPuPTffsuruwr4MgR60vhwCww9EcYum9M0583n1Ex17cFyVfcAkMrYEm+xhY7UhvpPgfvL76AZN+Uxs61UpN9Dt5ffAHlky/rDUwHluo7v1wPhnzDPkp/iy0g2bfP1meUj9ffIgtYiq+6fusM+cJ8hP4WXUD55NMNIp98ukH+p4/wiFCyj9DfogtI9YUYu86Rj9ffIgtI9d3ePUWFfNz+FlVAoq9tnOKb400Eoq+E/qILWILPDayEIaF32fj9RReQ7qvzH59c7GI18u3h9nlL9Tl4f/EFJPumzpHaSPd1zUHqL76AZJ9V7lRGus8id9Lrj15Ass8659LyWeZMcv3RC6h8ypct3xJXfPnky4qzyi+ffNl8s+z6J8wjn3xZfLP9S2wAOTSnfPJl8606fhws9c9MjplTPvly+vBA+eTL6fs9wY9UuJg55ZMvp09DQ8MbP9wzkG93Lpe0AAAAAElFTkSuQmCC","tags":[{"name":"idle","from":0,"to":0,"direction":"forward"},{"name":"fly","from":1,"to":4,"direction":"forward"}],"w":40,"h":40},"turn":{"src":"data:image/png;base64,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","tags":[{"name":"up","from":0,"to":3,"direction":"forward"},{"name":"upRight","from":4,"to":7,"direction":"forward"},{"name":"right","from":8,"to":11,"direction":"forward"},{"name":"downRight","from":12,"to":15,"direction":"forward"},{"name":"down","from":16,"to":19,"direction":"forward"}],"w":40,"h":40},"shadow":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAoCAYAAABpYH0BAAABEklEQVR4nO2XOxLCMBBDcxN6jpL73wd6ihist7sKI82kw5Ly4g8+jiiKCvV8nK+rZ7qfpVbQSmFOfhk1W4GBgpyAqGSSL495dUJ0gYd7dkAk4PGtQP/Kks7w0By3JfI5tqof5k/vM9RpS/m1+RNGNLwuWUCkPoAy3iJ7B4TD7FU1dmMh/+SqHlYduu+Zu7Oe7DYCkMya7leyjANwUwEoKgBFBaCoABQVgKICUNS3BUmIFf0qOyzL0b9d+ageFh2mpj66fKbyFRMKojJ+NNthFk3NQinX4US9Gk9Dxf2rClJbgTXAyiUzvZ+W53SUdIZoD4/IovdnxHPipHOBeEt4VLby8hUz+bb65Y4ecAsFWvTfegP9v/UDMMdL7AAAAABJRU5ErkJggg==","tags":[{"name":"still","from":0,"to":0,"direction":"forward"},{"name":"spin","from":1,"to":1,"direction":"forward"}],"w":40,"h":40},"tiles":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAoCAYAAAC7HLUcAAAE1klEQVR4nO2cPW5UMRDH9yb0FJQUCC4QcYIVQhRUFBwgBT00KehS0dIhcQGUBnEBRG6QMgJRLzKSkdfxjD3j+fJbir8E2d33/Oz5eWY8ft7dvHx8+C++bs+fhpbWc1+dPZj+7uHi+fS1tbWL0Bioo6J2Wilrg099VcsDkFPRzvqGIzBE0CiQ1jBcv3h0R63vZXCwceCOBXeyqn8XddIrdQcQKQM+fLl0fzgLjc7kHCBaMLR+1/peBse7f6Kr10dqHiTNDivMELPqzeSjnqEFxCxw6RqexhVZo203D7HMOsDIg/Vm8tEwSQIIag5iOYFpwaTxDOU1VQHxDLNmPZhUDmIFwmySDj3v7ef3h2/vXsnaRRDPg41x/kwVEK6RUjoQ+q4mnOU9LY1dE5DaYL7vH/5VgiMp/x9S9JyTa4ebDbGsciBvAKQByQb/++2epPw7bj9SJ0UrL3QESPRZIKI0jJpa65AAhAuGNCjRdASI5qwbJe6UlgYM1FoHB5ByPCTAaIHiPTYSmgqxPJdxoywhzwIhUevAgOm1XwMOK0gsbOA4xJqc5b2Ntr6/hdeKUOvAgMHargmHJCQ9u9Ic580m6VaKUOvAgIHaLQlHXgreYrj1b7PiDIUr5Bf3750dqfxsxvNB4Y82CDNJulRCfgqJO+hBSqPxDp0koLh68+FIECxUcLwB4ALC9QYSoZZHKDyqui3uIRbWOaNg1teAoICEQdJq38qFQi0ApHOR2uNrC2qHOCDSswHVe/XAuNyfH6n2KNT2cQ1XstZBASRXxq0BoUCSxuHXzU9TlWNvthdLCigMkvL3EBw1FJB63qR1Ty4MkrUOCiCWucdKgFx//dEce3dAJFUDMgpGKaoXGQFCu9axRUCSwVqLDEik5KnXJgk4OJBEqHVgtZjVAPGCI4QHkQCudY1WaGUFSIRaB1aLWQWQMoxO/f/x4pOpSkDKLVe674N0gJDyUJLeo4RkBBRtGGagySFWvY3dE5C8IRYb+2VCrFH1Vppm6yi9F1tKQCTgoCTt3mCsloOMbIj1AAQa5+WTdA3vQYHEGwAqIJqQYDUWSh3k5AHRCq00AEl6/eQZ2IGYcVrVOqIAws0/oLG1zEFCASIlbe8xkrhjMFjVOjiAjEIiUXkf3YtV17S8vEf54uCygFjCgXmQCLUOzHtB/WfpRTgHP3gC0l3FWmFzojUgECQRah2Y94L6z2pPVnnwA2eMPfMPEJAVpLVyJZmDSALDfe8E6r/ytJIoeUdrjD3zD1NARhLzFPtRvFeGxMt7aAIyCg0nB6kV9Z10Cw/SW8YfBqQ0XK0tKNRDI7QByXBEAYSj0b7UPNVk5rQcbUjEAJkxeo3rZkgzJMmIuRBgYGBwbAWQ1oFxkitVvYkP+2zzgFhseEwPWRt1qR4AmNK1sWeIUOuQ8CC1eicp1pI+orTem2X9opQaIJJAUK6VH5hi/CUErb+NdGCEWkdW657S4wOBUK9UrbASOqJNeJBS0EwBAZAhoMws5eC3DNW61oGtaEn3L3fJdgVlW005U/73ssu8VFFd66goBq1V68BWtLz7fdZYPWS23X2rOggd2iBV69DIQbYsSvi3qwfcu3GUtrS+ax37SucR0i9gWRhRhOtKqGVPph4kcudwpZ14z8raoLZmL38A1zqduBPUoEwAAAAASUVORK5CYII=","tags":[{"name":"sand","from":0,"to":0,"direction":"forward"},{"name":"rock","from":1,"to":1,"direction":"forward"},{"name":"ripples","from":2,"to":2,"direction":"forward"},{"name":"airfield","from":3,"to":3,"direction":"forward"},{"name":"outcrop","from":4,"to":4,"direction":"forward"}],"w":40,"h":40},"curiosity":{"src":"data:image/png;base64,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","tags":[{"name":"idle","from":0,"to":1,"direction":"forward"},{"name":"talk","from":2,"to":3,"direction":"forward"},{"name":"drive","from":4,"to":5,"direction":"forward"},{"name":"worried","from":6,"to":7,"direction":"forward"},{"name":"happy","from":8,"to":9,"direction":"forward"}],"w":64,"h":56},"__palette":[["#d6deef","body"],["#a3aecb","shade"],["#6a5ae8","solar panel"],["#f2f5ff","blade"],["#c9f6ff","rotor blur"],["#ff7ad9","hubs and feet"],["#5c5f80","legs"],["#2a1f4a","outline"],["#e8643c","Mars sand"]]};
+const img = {};
+const load = k => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = SH[k].src; img[k] = i; });
+const tag = (k, n) => SH[k].tags.find(t => t.name === n);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---- drawing helpers ----
+function drawFrame(g, sheet, f, x, y, flip = 1, a = 1) {   // anchor: bottom centre of a 40 x 40 frame
+  g.save(); g.globalAlpha = a; g.translate(Math.round(x), Math.round(y)); g.scale(flip, 1); g.drawImage(img[sheet], f * 40, 0, 40, 40, -20, -40, 40, 40); g.restore();
+}
+const TURN_NAMES = ["up", "upRight", "right", "downRight", "down"];
+function turnFrame(d8, spin) {           // d8: 0 = up, 2 = right, 4 = down, 6 = left
+  const k = ((d8 % 8) + 8) % 8, i = k <= 4 ? k : 8 - k;
+  return { sheet: "turn", f: tag("turn", TURN_NAMES[i]).from + spin, flip: k > 4 ? -1 : 1 };
+}
+function groundFrame(d8, anim, t) {      // on the ground (rotors still): side / front / back sheets
+  const k = ((Math.round(d8) % 8) + 8) % 8;
+  const sheet = k === 0 ? "back" : k === 4 ? "front" : "side", flip = k > 4 ? -1 : 1;
+  return { sheet, f: frameAt(sheet, anim, t), flip };
+}
+function frameAt(sheet, a, t) {
+  const tg = tag(sheet, a) || tag(sheet, "idle"), n = tg.to - tg.from + 1;
+  if (tg.name === "idle") return tg.from + ((t % 2600) > 2450 && n > 1 ? 1 : 0);
+  return tg.from + Math.floor(t / (tg.name === "fly" ? 60 : 200)) % n;
+}
+function shadowAt(g, x, y, alt, spin) {   // falls down-right; fainter and smaller as it climbs
+  const s = Math.max(0.55, 1 - alt / 60), a = Math.max(0.12, 0.32 - alt / 120);
+  g.save(); g.globalAlpha = a; g.translate(Math.round(x + alt * 0.3), Math.round(y - 12 + alt * 0.15)); g.scale(s, s * 0.5);
+  g.drawImage(img.shadow, spin ? 40 : 0, 0, 40, 40, -20, -20, 40, 40); g.restore();
+}
+function ring(g, x, y, ang) {             // direction ring on the ground: big arrow = front (where the colour camera looks)
+  g.save(); g.translate(x, y - 12); g.scale(1, 0.5);
+  g.lineWidth = 2; g.strokeStyle = "rgba(255,255,255,0.55)"; g.beginPath(); g.arc(0, 0, 19, 0, Math.PI * 2); g.stroke();
+  g.rotate(ang); g.fillStyle = "#b8ff7a"; g.strokeStyle = "#2a1f4a"; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(0, -27); g.lineTo(-7, -17); g.lineTo(7, -17); g.closePath(); g.fill(); g.stroke();
+  g.restore();
+}
+
+// ---- stage: chips, or a flown plan ----
+const VIEWS = { right: { d8: 2, label: "Side (right)" }, left: { d8: 6, label: "Side (left)" }, down: { d8: 4, label: "Front (down)" }, up: { d8: 0, label: "Back (up)" } };
+const ANIMS = { right: ["idle", "fly", "talk", "happy", "worried", "broken"], left: ["idle", "fly", "talk", "happy", "worried", "broken"], down: ["idle", "fly", "happy", "worried"], up: ["idle", "fly"] };
+let view = "right", anim = "fly", demo = !reduce, demoT0 = performance.now();
+function chips(boxId, items, get, set) {
+  const box = document.getElementById(boxId); box.innerHTML = "";
+  for (const [key, label] of items) {
+    const b = document.createElement("button"); b.className = "chip"; b.textContent = label; b.setAttribute("aria-pressed", String(!demo && get() === key));
+    b.onclick = () => { set(key); demo = false; refreshChips(); };
+    box.append(b);
+  }
+}
+function refreshChips() {
+  chips("viewChips", Object.entries(VIEWS).map(([k, v]) => [k, v.label]), () => view, k => { view = k; if (!ANIMS[k].includes(anim)) anim = "idle"; });
+  chips("animChips", ANIMS[view].map(a => [a, a[0].toUpperCase() + a.slice(1)]), () => anim, k => { anim = k; });
+  document.getElementById("demoBtn").setAttribute("aria-pressed", String(demo));
+  if (reduce && img.turn && img.turn.complete) stageFrame(performance.now());   // no animation loop: redraw on each choice
+}
+document.getElementById("demoBtn").onclick = () => { demo = !demo; demoT0 = performance.now(); refreshChips(); };
+
+const st = document.getElementById("stage"), sg = st.getContext("2d");
+const TOP = 30, cellX = c => 20 + c * 40, groundY = r => TOP + r * 40 + 34;
+const BOARD = { "2,1": "rock", "3,2": "outcrop", "5,0": "ripples", "5,1": "ripples", "5,2": "ripples", "4,0": "ripples", "0,1": "airfield", "4,1": "airfield", "1,2": "rock" };
+const TILE_IX = { sand: 0, rock: 1, ripples: 2, airfield: 3, outcrop: 4 };
+function drawBoard(g) {
+  g.fillStyle = "#1b1433"; g.fillRect(0, 0, st.width, TOP);
+  for (let i = 0; i < 30; i++) { g.fillStyle = i % 5 ? "#8f86c8" : "#ffe9ff"; g.fillRect((i * 53) % st.width, (i * 7) % (TOP - 4), 1, 1); }
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) g.drawImage(img.tiles, 0, 0, 40, 40, c * 40, TOP + r * 40, 40, 40);   // one seamless sand first
+  for (const [k, kind] of Object.entries(BOARD)) { const [c, r] = k.split(",").map(Number); g.drawImage(img.tiles, TILE_IX[kind] * 40, 0, 40, 40, c * 40, TOP + r * 40, 40, 40); }
+}
+// The plan: [kind, seconds, ...]. Heading d8: 2 = right, 4 = down.
+const PLAN = [["rest", 1.0], ["up", 1.0], ["fly", 0.8, 1], ["fly", 0.8, 2], ["fly", 0.8, 3], ["turn", 1.0, 2, 4], ["photo", 1.2], ["turn", 1.0, 4, 2], ["fly", 0.8, 4], ["down", 1.0], ["rest", 1.4]];
+const PLAN_LEN = PLAN.reduce((s, p) => s + p[1], 0), ALT = 16, ease = k => k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+function planState(t) {
+  let s = { c: 0, d8: 2, alt: 0, spin: false, photo: -1 };
+  for (const p of PLAN) {
+    const k = Math.min(1, t / p[1]);
+    if (p[0] === "up") { s.spin = true; s.alt = ALT * ease(k); }
+    if (p[0] === "fly") { s.c = p[2] - 1 + ease(k); }
+    if (p[0] === "turn") { s.d8 = p[2] + (p[3] - p[2]) * ease(k); s.turnFrom = p[2]; s.turnK = k < 1 ? k : -1; }
+    if (p[0] === "photo") s.photo = k < 1 ? k : -1;
+    if (p[0] === "down") { s.alt = ALT * (1 - ease(k)); s.spin = k < 1; }
+    if (t <= p[1]) return s;
+    t -= p[1]; if (p[0] === "fly") s.c = p[2];
+  }
+  return s;
+}
+function stageFrame(now) {
+  sg.imageSmoothingEnabled = false; drawBoard(sg);
+  const spinPh = Math.floor(now / 60) % 4;
+  if (demo) {
+    const s = planState(((now - demoT0) / 1000) % PLAN_LEN), x = cellX(s.c), y = groundY(1);
+    ring(sg, x, y, s.d8 * Math.PI / 4);
+    shadowAt(sg, x, y, s.alt, s.spin);
+    const fr = s.spin ? turnFrame(Math.round(s.d8), spinPh) : groundFrame(s.d8, "idle", now);
+    drawFrame(sg, fr.sheet, fr.f, x, y - s.alt, fr.flip);
+    if (s.photo >= 0) {                                   // photo: a flash at the camera, then a snapshot beside the target
+      if (s.photo < 0.15) { sg.fillStyle = "rgba(255,255,255,0.8)"; sg.fillRect(x - 4, y - s.alt - 12, 8, 6); }
+      const bx = cellX(4) - 14, by = TOP + 2 * 40 + 4;
+      sg.fillStyle = "#f4efff"; sg.fillRect(bx, by, 30, 32); sg.strokeStyle = "#2a1f4a"; sg.lineWidth = 2; sg.strokeRect(bx, by, 30, 32);
+      sg.drawImage(img.tiles, TILE_IX.outcrop * 40 + 4, 12, 32, 26, bx + 3, by + 3, 24, 21);
+      sg.fillStyle = "#2a1f4a"; sg.font = "bold 7px 'Pixelify Sans', monospace"; sg.textAlign = "center"; sg.fillText("CLICK!", bx + 15, by + 30);
+    }
+  } else {
+    const d8 = VIEWS[view].d8, x = cellX(2.5), y = groundY(1), air = anim === "fly" || anim === "happy";
+    const alt = air ? 12 + Math.sin(now / 300) * 1.5 : 0;
+    ring(sg, x, y, d8 * Math.PI / 4); shadowAt(sg, x, y, alt, air);
+    const fr = anim === "fly" ? turnFrame(d8, spinPh) : groundFrame(d8, anim, now);
+    drawFrame(sg, fr.sheet, fr.f, x, y - alt, fr.flip);
+  }
+}
+
+// ---- the four puzzles (kept in step with plans/INGENUITY-GAME-DESIGN.md section 6) ----
+const FLIGHTS = [
+  ["1 · Out and back · Easy · Best 5", "Like Flight 4: fly out, take pictures, come home.", "photo the striped rock, land back home.", ["S . a"], "R"],
+  ["2 · New airfield · Medium · Best 7", "Like Flight 5: the first one-way trip to a new airfield.", "photo the striped rock, land on the new airfield.", ["S . R .", ". ~ a A"], "R"],
+  ["3 · Science scout · Tricky · Best 11", "Like Flight 12: two pictures from two places make a 3D picture.", "photo the striped rock from two different squares, land on the new airfield.", ["S . . .", ". R a .", ". ~ . A"], "R"],
+  ["4 · The shortcut · Hard · Best 14", "Like Flight 9: a long shortcut across rough ground the rover had to drive around.", "photo the striped rock, land on the new airfield. Going round is too long for the motors.", ["S ~ ~ ~ ~ .", ". R ~ ~ ~ .", ". R R ~ ~ .", ". ~ R R a .", ". ~ ~ ~ ~ A", ". . . . . ."], "D"],
+];
+
+// ---- static sections ----
+function canvasOf(w, h, draw) { const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"); g.imageSmoothingEnabled = false; draw(g); return c; }
+function buildStatic() {
+  const turn = document.getElementById("turn");
+  const names = ["Up", "Up-right", "Right", "Down-right", "Down", "Down-left", "Left", "Up-left"];
+  names.forEach((n, d8) => {
+    const fr = turnFrame(d8, 0), f = document.createElement("figure");
+    f.append(canvasOf(48, 48, g => { g.drawImage(img.tiles, 0, 0, 40, 40, 0, 0, 48, 48); g.drawImage(img.tiles, 0, 0, 8, 8, 40, 40, 8, 8); shadowAt(g, 24, 46, 4, true); drawFrame(g, fr.sheet, fr.f, 24, 44, fr.flip); }));
+    f.insertAdjacentHTML("beforeend", `<figcaption>${n}<small>${d8 * 45}°${d8 > 4 ? " · flipped" : ""}</small></figcaption>`);
+    turn.append(f);
+  });
+  const frames = document.getElementById("frames");
+  for (const [name, sheet] of [["Side", "side"], ["Front", "front"], ["Back", "back"], ["Turning", "turn"]]) {
+    const row = document.createElement("div"); row.className = "frame-row";
+    row.innerHTML = `<span>${name}</span><div class="strip"></div>`;
+    const strip = row.querySelector(".strip");
+    for (const t of SH[sheet].tags) for (let i = t.from; i <= t.to; i++) {
+      const f = document.createElement("figure"); f.append(canvasOf(40, 40, g => drawFrame(g, sheet, i, 20, 40)));
+      f.insertAdjacentHTML("beforeend", `<figcaption>${t.name} ${i - t.from + 1}</figcaption>`); strip.append(f);
+    }
+    frames.append(row);
+  }
+  const ground = document.getElementById("ground");
+  for (const [kind, title, tagClass, tagText, note] of [
+    ["airfield", "Airfield", "ok", "Land here", "A flat spot with no big rocks, picked by the team from earlier pictures."],
+    ["rock", "Rock", "over", "Fly over, never land", "A helicopter can fly over it. Landing on it could tip it over."],
+    ["ripples", "Smooth sand ripples", "no", "Gets lost", "Nothing for the navigation camera to follow, like the ground on its last flight."],
+    ["outcrop", "Striped rock", "photo", "Photo target", "Rock layers the science team wants to see up close."],
+  ]) {
+    const f = document.createElement("figure");
+    f.append(canvasOf(40, 40, g => g.drawImage(img.tiles, TILE_IX[kind] * 40, 0, 40, 40, 0, 0, 40, 40)));
+    f.insertAdjacentHTML("beforeend", `<figcaption>${title}<small><span class="tag ${tagClass}">${tagText}</span></small><small>${note}</small></figcaption>`);
+    ground.append(f);
+  }
+  const flights = document.getElementById("flights"), KIND = { ".": "sand", R: "rock", "~": "ripples", A: "airfield", S: "airfield", a: "outcrop" }, HEAD = { U: 0, R: 2, D: 4, L: 6 };
+  for (const [title, real, goal, rows, h0] of FLIGHTS) {
+    const g = rows.map(r => r.split(" ")), w = g[0].length, h = g.length, Z = 2, f = document.createElement("figure");
+    f.append(canvasOf(w * 40 * Z / 2, h * 40 * Z / 2, cx => {
+      cx.scale(Z / 2, Z / 2);
+      g.forEach((row, y) => row.forEach((c, x) => { cx.drawImage(img.tiles, 0, 0, 40, 40, x * 40, y * 40, 40, 40); cx.drawImage(img.tiles, TILE_IX[KIND[c]] * 40, 0, 40, 40, x * 40, y * 40, 40, 40); }));
+      g.forEach((row, y) => row.forEach((c, x) => { if (c === "S") { const fr = groundFrame(HEAD[h0], "idle", 0); ring(cx, x * 40 + 20, y * 40 + 38, HEAD[h0] * Math.PI / 4); drawFrame(cx, fr.sheet, fr.f, x * 40 + 20, y * 40 + 38, fr.flip); } }));
+    }));
+    f.insertAdjacentHTML("beforeend", `<figcaption>${title}<small>${real}</small><small><b>Goal:</b> ${goal}</small></figcaption>`);
+    flights.append(f);
+  }
+  const sw = document.getElementById("swatches");
+  for (const [hex, n] of SH.__palette) sw.insertAdjacentHTML("beforeend", `<div class="sw"><i style="background:${hex}"></i>${n}</div>`);
+}
+
+// ---- line-up ----
+const lu = document.getElementById("lineup"), lg = lu.getContext("2d");
+function lineupFrame(now) {
+  lg.imageSmoothingEnabled = false;
+  lg.fillStyle = "#1b1433"; lg.fillRect(0, 0, lu.width, lu.height);
+  ["#3b2266", "#5a2b7a", "#8a3f8e", "#c4609a"].forEach((c, i) => { lg.fillStyle = c; lg.fillRect(0, 50 + i * 8, lu.width, 8); });
+  lg.fillStyle = "#f2a58e"; lg.fillRect(0, 82, lu.width, 28);
+  const gy = 96, cf = frameAt("curiosity", "idle", now);
+  lg.fillStyle = "rgba(42,31,74,0.3)"; lg.fillRect(44, gy - 2, 60, 3);
+  lg.drawImage(img.curiosity, cf * 64, 0, 64, 56, 38, gy - 56, 64, 56);
+  shadowAt(lg, 165, gy + 8, 0, false); drawFrame(lg, "side", frameAt("side", "idle", now), 165, gy, -1);
+  const alt = 22 + Math.sin(now / 320) * 2, fr = turnFrame(6, Math.floor(now / 60) % 4);
+  shadowAt(lg, 255, gy + 8, alt, true); drawFrame(lg, fr.sheet, fr.f, 255, gy - alt, fr.flip);
+  lg.fillStyle = "#1b1433"; lg.font = "bold 8px 'Pixelify Sans', monospace"; lg.textAlign = "center";
+  lg.fillText("CURIOSITY", 70, 106); lg.fillText("INGENUITY", 165, 106); lg.fillText("IN THE AIR", 255, 106);
+}
+
+function loop(now) { stageFrame(now); lineupFrame(now); if (!reduce) requestAnimationFrame(loop); }
+Promise.all(Object.keys(SH).filter(k => !k.startsWith("__")).map(load)).then(() => { refreshChips(); buildStatic(); requestAnimationFrame(loop); });
+</script>

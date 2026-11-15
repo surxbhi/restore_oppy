@@ -1,0 +1,224 @@
+<title>Secret in the Stripes Art</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Layout: a one-column model sheet in the game's own night-sky arcade look (deliberately single-theme,
+     matching the Sojourner and Phoenix sheets): scenes first, then the code, then every frame. */
+  :root {
+    --night: #1b1433; --night-2: #261c48; --line: #3d2f6b; --ink: #f4efff; --muted: #b5a8dc;
+    --orange: #ff8a3d; --cloth: #f4f7ff; --pink: #ff7ad9; --cyan: #7ff7ff; --yellow: #fff27a; --sand: #e8643c;
+    --display: "Pixelify Sans", "Courier New", monospace;
+    --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { background: var(--night); color: var(--ink); }
+  body { font: 16px/1.55 var(--body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; }
+  main { max-width: 1040px; margin: 0 auto; display: grid; gap: 40px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: .5px; }
+  h1 { font-size: clamp(32px, 6vw, 52px); color: var(--orange); }
+  h2 { font-size: 24px; }
+  h3 { font-size: 18px; }
+  p { margin: 0; }
+  .eyebrow { font-family: var(--display); color: var(--pink); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; }
+  .lede { color: var(--muted); max-width: 64ch; margin-top: 8px; }
+  section { display: grid; gap: 14px; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; max-width: 100%; }
+
+  .ideas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 760px) { .ideas { grid-template-columns: 1fr; } }
+  .idea:not(.pick) { opacity: .6; }
+  .idea { background: var(--night-2); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+  .idea.pick { border-color: var(--orange); }
+  .idea .tag { font-family: var(--display); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .idea.pick .tag { color: var(--orange); }
+  .idea p { color: var(--muted); font-size: 15px; }
+
+  .scenes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 700px) { .scenes { grid-template-columns: 1fr; } }
+  figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+  .scenes canvas { width: 100%; height: auto; border-radius: 14px; border: 3px solid var(--line); }
+  figcaption { font-size: 14px; color: var(--muted); }
+  figcaption b { font-family: var(--display); font-weight: 500; color: var(--ink); font-size: 16px; }
+
+  .code { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: center; }
+  @media (max-width: 700px) { .code { grid-template-columns: 1fr; } }
+  #canopy { width: 100%; max-width: 300px; height: auto; border-radius: 50%; }
+  .key { display: grid; gap: 12px; min-width: 0; }
+  .stripes { display: flex; gap: 6px; flex-wrap: wrap; }
+  .stripe { width: 44px; display: grid; gap: 4px; justify-items: center; font: 600 13px var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stripe i { width: 44px; height: 72px; border-radius: 6px 6px 3px 3px; background: var(--cloth); border: 3px solid var(--night-2); outline: 2px solid var(--line); }
+  .stripe.on i { background: var(--orange); }
+  .sum { font-family: var(--display); font-size: 22px; color: var(--yellow); font-variant-numeric: tabular-nums; }
+  .key p { color: var(--muted); max-width: 60ch; }
+
+  .row { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; align-items: center; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  .row > span { font-family: var(--display); color: var(--muted); }
+  .strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .strip figure { justify-items: center; text-align: center; }
+  .strip canvas { background: #2e2357; border: 2px solid var(--line); border-radius: 10px; }
+  .strip figcaption { font-size: 12px; }
+  #lineup { width: 100%; height: auto; border-radius: 14px; border: 3px solid var(--line); }
+
+  .notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  @media (max-width: 700px) { .notes { grid-template-columns: 1fr; } }
+  .notes ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); }
+  .notes b { color: var(--ink); font-weight: 600; }
+  .flag { color: var(--yellow); font-weight: 700; }
+  a { color: var(--cyan); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Restore Oppy · art test · Perseverance</div>
+    <h1>Secret in the Stripes</h1>
+    <p class="lede">First look at the characters for Perseverance's chapter, drawn in code in the same chunky style as Sojourner.
+      Nothing playable is built yet. The game is picked (Secret in the Stripes); please say what to change in the art.</p>
+  </header>
+
+  <section aria-labelledby="ideas-h">
+    <h2 id="ideas-h">The game</h2>
+    <div class="ideas">
+      <div class="idea pick"><span class="tag">A · chosen</span><h3>Secret in the Stripes</h3>
+        <p>Copy the missing letters' stripes from a stripe key, then open the parachute and read DARE MIGHTY THINGS. Matches the plans and Person 1's story.</p></div>
+      <div class="idea"><span class="tag">B · not chosen</span><h3>Sample Keeper</h3>
+        <p>Drive Perseverance to the right rock, core it, and leave the sample tube at the depot. A new chapter: needs a new story from Person 1.</p></div>
+      <div class="idea"><span class="tag">C · not chosen</span><h3>Landing Day</h3>
+        <p>Put the landing steps in order (parachute, backshell off, rockets, sky crane) and pick a safe spot. More of a quiz.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="scenes-h">
+    <h2 id="scenes-h">Scenes</h2>
+    <div class="scenes">
+      <figure><canvas id="sky" width="240" height="150" aria-label="Chute open over Mars with the backshell hanging below"></canvas>
+        <figcaption><b>The landing.</b> Chute opens and slows the backshell. Perseverance is inside.</figcaption></figure>
+      <figure><canvas id="ground" width="240" height="150" aria-label="Chute lying on the sand next to the backshell, with Curiosity"></canvas>
+        <figcaption><b>Where it ended up.</b> Curiosity meets Chute beside the old backshell.</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="code-h">
+    <h2 id="code-h">The real code</h2>
+    <div class="code">
+      <canvas id="canopy" width="128" height="128" aria-label="The canopy seen from below, with the real code in its stripes"></canvas>
+      <div class="key">
+        <p>Seen from below, like the camera on the backshell saw it. The inner rings spell DARE, MIGHTY, THINGS. The band holds JPL's address.
+          Each letter is 7 stripes. Orange means "add this number". A is 1, B is 2, up to Z, 26.</p>
+        <div class="stripes" id="stripes" aria-label="The letter E as seven stripes"></div>
+        <div class="sum" id="sum"></div>
+        <p>In the game, a few letters are blank. The child copies each one's stripes from a stripe key (no maths), then presses OPEN.
+          Best moves rise across the four puzzles: 3, 5, 7, 9.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="frames-h">
+    <h2 id="frames-h">Every frame</h2>
+    <div class="row"><span>Chute</span><div class="strip" id="s-chute"></div></div>
+    <div class="row"><span>Perseverance</span><div class="strip" id="s-rover"></div></div>
+    <div class="row"><span>Backshell</span><div class="strip" id="s-backshell"></div></div>
+    <figure><canvas id="lineup" width="240" height="90" aria-label="Perseverance and Curiosity side by side"></canvas>
+      <figcaption><b>Same size, different jobs.</b> Perseverance (left) is about as big as Curiosity (right). Cyan stripe and a bigger drill on its arm tell them apart.</figcaption></figure>
+  </section>
+
+  <section class="notes" aria-label="Notes">
+    <div><h3>What is real</h3>
+      <ul>
+        <li><b>Chute:</b> white and orange slices (gores), a dome, a thin gap, then a band round the edge.</li>
+        <li><b>The code:</b> 7 stripes per letter, read from the middle out, clockwise, starting after the black slice (NASA coding activity).</li>
+        <li><b>Perseverance:</b> power unit at the back, no solar panels; two Mastcam-Z cameras are its eyes; SuperCam's window on top; drill on the arm.</li>
+        <li><b>Backshell:</b> the camera that photographed the parachute sits on it (PIA24431).</li>
+      </ul></div>
+    <div><h3>Still to check <span class="flag">[source]</span></h3>
+      <ul>
+        <li>That orange means 1 and white means 0.</li>
+        <li>Exact slice layout: the canopy here is a simplified game version.</li>
+        <li>Names "Chute" and "Percy": Person 1 to approve.</li>
+      </ul></div>
+  </section>
+</main>
+
+<script>
+const SH = {"chute":{"src":"data:image/png;base64,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","frames":[{"label":"packed","x":0,"y":0,"w":64,"h":64},{"label":"opening","x":64,"y":0,"w":64,"h":64},{"label":"idle","x":128,"y":0,"w":64,"h":64},{"label":"idle","x":192,"y":0,"w":64,"h":64},{"label":"talk","x":256,"y":0,"w":64,"h":64},{"label":"talk","x":320,"y":0,"w":64,"h":64},{"label":"happy","x":384,"y":0,"w":64,"h":64},{"label":"happy","x":448,"y":0,"w":64,"h":64},{"label":"worried","x":512,"y":0,"w":64,"h":64},{"label":"ground","x":576,"y":0,"w":64,"h":64}]},"canopy":{"src":"data:image/png;base64,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","frames":[{"label":"below","x":0,"y":0,"w":128,"h":128}]},"backshell":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwCAYAAADuFn/PAAAB6ElEQVR4nO2ZPU5EIRSFZw92NvYWxtrE2M8SjGuYBdjMPmztXYStvaVbsLR8hmImhPDPgctlzkluQ14CnI97ecBuR62n25v95gvpcV2EjNHvH1/eIITOiplPCANEAII61fkcAIQAljH0++f3HCkIzASgbPNTIoQOcld/KggAqFLzXQAPT4dzSM9FpRAAjn8bAdSoxnwXAjOgQQgA3Asq1WJ+6DeVEArUCoBZUKnTKbbV/FgWEERAOdcMqCCEgFCrf+ResBRMTQDsy8ElHoXQ5ocAICCEyqXpUy2MHgB6ZEFqr7L7VgOil/k9sqAEgAtiWhhaAPjMv766z4IwbYnqaT4agg3AGO9GDoDpStQlAxAvUSMPX60QUuanIMQAiMEYsfpRWTAKgG+/UG9+DEAuBDSA2B9U6HcWCkMrgJj5NgQkADiM0eYjIKAB5JSgVFRDIAAMgCoIUuanAKQgEIBwFiwBQNr8lixQD8B8+Pb8qiJ8k1IPQAuEZTNAA4Tl9wB7MjOByDnYlAIYFc0HshnMzx1ryVWECgA7KxsOjy9Do/Q4vyyA0SBq71GWB9AbBOI2MfdBZoTp3d8M7E5aTUcNVAKAPQexJ0zfIHIC1f/n/m6zwxjTu82M323zjSXUtrR8k5y9jaIoSkD/4RWISrIKuxAAAAAASUVORK5CYII=","frames":[{"label":"falling","x":0,"y":0,"w":48,"h":48},{"label":"ground","x":48,"y":0,"w":48,"h":48}]},"rover":{"src":"data:image/png;base64,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","frames":[{"label":"idle","x":0,"y":0,"w":64,"h":56},{"label":"idle","x":64,"y":0,"w":64,"h":56},{"label":"talk","x":128,"y":0,"w":64,"h":56},{"label":"talk","x":192,"y":0,"w":64,"h":56},{"label":"drive","x":256,"y":0,"w":64,"h":56},{"label":"drive","x":320,"y":0,"w":64,"h":56},{"label":"worried","x":384,"y":0,"w":64,"h":56},{"label":"worried","x":448,"y":0,"w":64,"h":56},{"label":"happy","x":512,"y":0,"w":64,"h":56},{"label":"happy","x":576,"y":0,"w":64,"h":56}]},"curiosity":{"src":"data:image/png;base64,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","frames":[{"label":"idle","x":0,"y":0,"w":64,"h":56},{"label":"idle","x":64,"y":0,"w":64,"h":56},{"label":"talk","x":128,"y":0,"w":64,"h":56},{"label":"talk","x":192,"y":0,"w":64,"h":56},{"label":"drive","x":256,"y":0,"w":64,"h":56},{"label":"drive","x":320,"y":0,"w":64,"h":56},{"label":"worried","x":384,"y":0,"w":64,"h":56},{"label":"worried","x":448,"y":0,"w":64,"h":56},{"label":"happy","x":512,"y":0,"w":64,"h":56},{"label":"happy","x":576,"y":0,"w":64,"h":56}]}};
+const IMG = {};
+const load = k => new Promise(r => { const i = new Image(); i.onload = () => { IMG[k] = i; r(); }; i.src = SH[k].src; });
+const fr = (k, label, n = 0) => SH[k].frames.filter(f => f.label === label)[n] || SH[k].frames[0];
+function draw(ctx, k, f, x, y, flip = false) {
+  if (!flip) { ctx.drawImage(IMG[k], f.x, f.y, f.w, f.h, Math.round(x), Math.round(y), f.w, f.h); return; }
+  ctx.save(); ctx.translate(Math.round(x) + f.w, Math.round(y)); ctx.scale(-1, 1); ctx.drawImage(IMG[k], f.x, f.y, f.w, f.h, 0, 0, f.w, f.h); ctx.restore();
+}
+const C = { night: "#1b1433", night2: "#2e2357", star: "#c6a8ff", sand: "#e8643c", sandLight: "#ff8f5e", sandDark: "#c24a2e", shadow: "#b5412a", hill: "#9a3d3a" };
+const STARS = Array.from({ length: 26 }, (_, i) => [(i * 97) % 240, (i * 53) % 90]);
+
+function sky(t) {
+  const c = document.getElementById("sky").getContext("2d");
+  c.fillStyle = C.night; c.fillRect(0, 0, 240, 150);
+  c.fillStyle = C.night2; c.fillRect(0, 90, 240, 60);
+  c.fillStyle = C.star; for (const [x, y] of STARS) c.fillRect(x, y, 1, 1);
+  c.fillStyle = C.hill; c.fillRect(0, 132, 240, 18); c.fillRect(30, 128, 50, 4); c.fillRect(150, 126, 70, 6);
+  c.fillStyle = C.sand; c.fillRect(0, 138, 240, 12);
+  const bob = Math.round(Math.sin(t / 700) * 2), sway = Math.round(Math.sin(t / 1100) * 3);
+  const tag = (Math.floor(t / 1600) % 3 === 2) ? "talk" : "idle", n = Math.floor(t / 220) % 2;
+  const f = tag === "idle" && (t % 3200) > 3000 ? fr("chute", "idle", 1) : fr("chute", tag, n);
+  draw(c, "chute", f, 88 + sway, 4 + bob);
+  c.strokeStyle = "#e8ecf6"; c.lineWidth = 1; c.beginPath(); c.moveTo(120.5 + sway, 67 + bob); c.lineTo(120.5, 74 + bob); c.stroke();
+  draw(c, "backshell", fr("backshell", "falling"), 96, 72 + bob);
+}
+function ground(t) {
+  const c = document.getElementById("ground").getContext("2d");
+  c.fillStyle = C.night; c.fillRect(0, 0, 240, 150);
+  c.fillStyle = C.star; for (const [x, y] of STARS) if (y < 60) c.fillRect(x, y, 1, 1);
+  c.fillStyle = C.hill; c.fillRect(0, 62, 240, 10); c.fillRect(120, 58, 80, 4);
+  c.fillStyle = C.sand; c.fillRect(0, 70, 240, 80);
+  c.fillStyle = C.sandLight; c.fillRect(0, 70, 240, 3);
+  c.fillStyle = C.sandDark; for (const [x, y] of [[20, 100], [200, 132], [110, 140], [60, 128]]) c.fillRect(x, y, 6, 2);
+  // shadows fall down and to the right from where things touch the ground
+  c.fillStyle = C.shadow;
+  c.fillRect(14, 128, 46, 4); c.fillRect(70, 128, 62, 4); c.fillRect(160, 138, 62, 4);
+  draw(c, "backshell", fr("backshell", "ground"), 10, 84);
+  draw(c, "chute", fr("chute", "ground"), 66, 68);
+  const tag = Math.floor(t / 1800) % 2 ? "talk" : "idle";
+  draw(c, "curiosity", fr("curiosity", tag, Math.floor(t / 220) % 2), 156, 84, true);
+}
+function lineup(t) {
+  const c = document.getElementById("lineup").getContext("2d");
+  c.fillStyle = C.night; c.fillRect(0, 0, 240, 90);
+  c.fillStyle = C.sand; c.fillRect(0, 74, 240, 16); c.fillStyle = C.sandLight; c.fillRect(0, 74, 240, 2);
+  c.fillStyle = C.shadow; c.fillRect(36, 74, 60, 3); c.fillRect(146, 74, 60, 3);
+  const n = Math.floor(t / 200) % 2;
+  draw(c, "rover", fr("rover", "drive", n), 30, 20);
+  draw(c, "curiosity", fr("curiosity", "drive", n), 140, 20);
+}
+function canopy() {
+  const c = document.getElementById("canopy").getContext("2d");
+  c.fillStyle = "#2e2357"; c.fillRect(0, 0, 128, 128);
+  draw(c, "canopy", SH.canopy.frames[0], 0, 0);
+}
+function strips() {
+  for (const k of ["chute", "rover", "backshell"]) {
+    const box = document.getElementById("s-" + k);
+    for (const f of SH[k].frames) {
+      const fig = document.createElement("figure"), cv = document.createElement("canvas");
+      cv.width = f.w; cv.height = f.h; cv.style.width = (f.w * 1.5) + "px";
+      draw(cv.getContext("2d"), k, f, 0, 0);
+      const cap = document.createElement("figcaption"); cap.textContent = f.label;
+      fig.append(cv, cap); box.append(fig);
+    }
+  }
+}
+function key() {
+  const vals = [64, 32, 16, 8, 4, 2, 1], on = [4, 1], box = document.getElementById("stripes");
+  for (const v of vals) { const s = document.createElement("div"); s.className = "stripe" + (on.includes(v) ? " on" : ""); s.innerHTML = "<i></i>" + v; box.append(s); }
+  document.getElementById("sum").textContent = "4 + 1 = 5 → E";
+}
+Promise.all(Object.keys(SH).map(load)).then(() => {
+  canopy(); strips(); key();
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const loop = t => { sky(t); ground(t); lineup(t); if (!still) requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+});
+</script>

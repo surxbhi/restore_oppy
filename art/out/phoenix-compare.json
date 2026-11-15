@@ -1,0 +1,49 @@
+{
+  "frames": [
+    {
+      "filename": "phoenix-compare 0",
+      "label": "earlier",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 100
+      },
+      "duration": 100
+    },
+    {
+      "filename": "phoenix-compare 1",
+      "label": "later",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 160,
+        "h": 100
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_phoenix_sprites.mjs",
+    "image": "phoenix-compare.png",
+    "size": {
+      "w": 320,
+      "h": 100
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "earlier",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "later",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      }
+    ]
+  }
+}

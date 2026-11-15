@@ -1,0 +1,49 @@
+{
+  "frames": [
+    {
+      "filename": "perse-backshell 0",
+      "label": "falling",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 48
+      },
+      "duration": 100
+    },
+    {
+      "filename": "perse-backshell 1",
+      "label": "ground",
+      "frame": {
+        "x": 48,
+        "y": 0,
+        "w": 48,
+        "h": 48
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_perseverance_sprites.mjs",
+    "image": "perse-backshell.png",
+    "size": {
+      "w": 96,
+      "h": 48
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "falling",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "ground",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      }
+    ]
+  }
+}

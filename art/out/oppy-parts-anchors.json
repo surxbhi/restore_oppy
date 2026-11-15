@@ -1,0 +1,235 @@
+{
+  "frame": {
+    "w": 64,
+    "h": 56
+  },
+  "sheet": "oppy-parts.png",
+  "order": [
+    "base",
+    "wheels",
+    "arm",
+    "antenna",
+    "mast",
+    "panels",
+    "complete"
+  ],
+  "note": "Frame pixels, origin top-left of one 64 x 56 frame. Draw base, then the parts in order; every part layer overlaps the base at its mount.",
+  "groundY": 55,
+  "parts": {
+    "base": {
+      "box": {
+        "x": 0,
+        "y": 14,
+        "w": 64,
+        "h": 38
+      },
+      "mount": null
+    },
+    "wheels": {
+      "box": {
+        "x": 2,
+        "y": 38,
+        "w": 57,
+        "h": 17
+      },
+      "mount": [
+        {
+          "x": 12,
+          "y": 48
+        },
+        {
+          "x": 32,
+          "y": 48
+        },
+        {
+          "x": 52,
+          "y": 48
+        }
+      ],
+      "centres": {
+        "near": [
+          {
+            "centre": {
+              "x": 11.5,
+              "y": 47.5
+            },
+            "hub": {
+              "x": 12,
+              "y": 48
+            },
+            "box": {
+              "x": 5,
+              "y": 41,
+              "w": 14,
+              "h": 14
+            },
+            "near": true
+          },
+          {
+            "centre": {
+              "x": 31.5,
+              "y": 47.5
+            },
+            "hub": {
+              "x": 32,
+              "y": 48
+            },
+            "box": {
+              "x": 25,
+              "y": 41,
+              "w": 14,
+              "h": 14
+            },
+            "near": true
+          },
+          {
+            "centre": {
+              "x": 51.5,
+              "y": 47.5
+            },
+            "hub": {
+              "x": 52,
+              "y": 48
+            },
+            "box": {
+              "x": 45,
+              "y": 41,
+              "w": 14,
+              "h": 14
+            },
+            "near": true
+          }
+        ],
+        "far": [
+          {
+            "centre": {
+              "x": 8.5,
+              "y": 44.5
+            },
+            "hub": {
+              "x": 12,
+              "y": 48
+            },
+            "box": {
+              "x": 2,
+              "y": 38,
+              "w": 14,
+              "h": 14
+            },
+            "near": false
+          },
+          {
+            "centre": {
+              "x": 28.5,
+              "y": 44.5
+            },
+            "hub": {
+              "x": 32,
+              "y": 48
+            },
+            "box": {
+              "x": 22,
+              "y": 38,
+              "w": 14,
+              "h": 14
+            },
+            "near": false
+          },
+          {
+            "centre": {
+              "x": 48.5,
+              "y": 44.5
+            },
+            "hub": {
+              "x": 52,
+              "y": 48
+            },
+            "box": {
+              "x": 42,
+              "y": 38,
+              "w": 14,
+              "h": 14
+            },
+            "near": false
+          }
+        ]
+      }
+    },
+    "arm": {
+      "box": {
+        "x": 50,
+        "y": 27,
+        "w": 13,
+        "h": 14
+      },
+      "mount": {
+        "x": 51,
+        "y": 28,
+        "what": "shoulder joint on the lug at the front of the body"
+      },
+      "turret": {
+        "x": 58,
+        "y": 36
+      }
+    },
+    "antenna": {
+      "box": {
+        "x": 2,
+        "y": 3,
+        "w": 16,
+        "h": 17
+      },
+      "mount": {
+        "x": 10,
+        "y": 19,
+        "what": "gimbal base on the rear deck pad"
+      },
+      "dish": {
+        "x": 9.5,
+        "y": 9.5
+      }
+    },
+    "mast": {
+      "box": {
+        "x": 33,
+        "y": 0,
+        "w": 24,
+        "h": 21
+      },
+      "mount": {
+        "x": 53,
+        "y": 20,
+        "what": "post foot on the front deck pad"
+      },
+      "head": {
+        "x": 34,
+        "y": 1,
+        "w": 22,
+        "h": 10
+      },
+      "eyes": [
+        {
+          "x": 40,
+          "y": 5
+        },
+        {
+          "x": 50,
+          "y": 5
+        }
+      ]
+    },
+    "panels": {
+      "box": {
+        "x": 1,
+        "y": 21,
+        "w": 62,
+        "h": 5
+      },
+      "mount": {
+        "x": 32,
+        "y": 25,
+        "what": "deck wings sit on the bare deck frame above the body"
+      }
+    }
+  }
+}

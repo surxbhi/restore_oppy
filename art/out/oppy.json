@@ -1,0 +1,116 @@
+{
+  "frames": [
+    {
+      "filename": "oppy 0",
+      "label": "off",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy 1",
+      "label": "idle",
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy 2",
+      "label": "idle",
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy 3",
+      "label": "talk",
+      "frame": {
+        "x": 192,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy 4",
+      "label": "talk",
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy 5",
+      "label": "happy",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy 6",
+      "label": "happy",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 64,
+        "h": 56
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "oppy.png",
+    "size": {
+      "w": 448,
+      "h": 56
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "off",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "idle",
+        "from": 1,
+        "to": 2,
+        "direction": "forward"
+      },
+      {
+        "name": "talk",
+        "from": 3,
+        "to": 4,
+        "direction": "forward"
+      },
+      {
+        "name": "happy",
+        "from": 5,
+        "to": 6,
+        "direction": "forward"
+      }
+    ]
+  }
+}

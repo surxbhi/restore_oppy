@@ -1,0 +1,43 @@
+{
+  "frames": [
+    {
+      "filename": "oppy-wheel 0",
+      "label": "wheel",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 14,
+        "h": 14
+      },
+      "duration": 100
+    },
+    {
+      "filename": "oppy-wheel 1",
+      "label": "wheel",
+      "frame": {
+        "x": 14,
+        "y": 0,
+        "w": 14,
+        "h": 14
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "oppy-wheel.png",
+    "size": {
+      "w": 28,
+      "h": 14
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "wheel",
+        "from": 0,
+        "to": 1,
+        "direction": "forward"
+      }
+    ]
+  }
+}

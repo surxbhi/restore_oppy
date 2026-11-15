@@ -1,0 +1,13 @@
+{
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/restore-oppy.html", "destination": "/", "permanent": true },
+    { "source": "/prototype/restore-oppy.html", "destination": "/", "permanent": true },
+    { "source": "/prototype", "destination": "/", "permanent": true },
+    { "source": "/prototype/:path*", "destination": "/:path*", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/", "destination": "/prototype/restore-oppy.html" },
+    { "source": "/:path((?!storytimes/|docs/|prototype/).*)", "destination": "/prototype/:path" }
+  ]
+}

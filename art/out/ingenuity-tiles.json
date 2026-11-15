@@ -1,0 +1,100 @@
+{
+  "frames": [
+    {
+      "filename": "ingenuity-tiles 0",
+      "label": "sand",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-tiles 1",
+      "label": "rock",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-tiles 2",
+      "label": "ripples",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-tiles 3",
+      "label": "airfield",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-tiles 4",
+      "label": "outcrop",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_ingenuity_sprites.mjs",
+    "image": "ingenuity-tiles.png",
+    "size": {
+      "w": 200,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "sand",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "rock",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "ripples",
+        "from": 2,
+        "to": 2,
+        "direction": "forward"
+      },
+      {
+        "name": "airfield",
+        "from": 3,
+        "to": 3,
+        "direction": "forward"
+      },
+      {
+        "name": "outcrop",
+        "from": 4,
+        "to": 4,
+        "direction": "forward"
+      }
+    ]
+  }
+}

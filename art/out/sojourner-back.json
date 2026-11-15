@@ -1,0 +1,71 @@
+{
+  "frames": [
+    {
+      "filename": "sojourner-back 0",
+      "label": "idle",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-back 1",
+      "label": "idle",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-back 2",
+      "label": "drive",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-back 3",
+      "label": "drive",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "sojourner-back.png",
+    "size": {
+      "w": 160,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "drive",
+        "from": 2,
+        "to": 3,
+        "direction": "forward"
+      }
+    ]
+  }
+}

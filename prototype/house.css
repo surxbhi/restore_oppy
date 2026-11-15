@@ -1,0 +1,537 @@
+/* house.css: the shared look of the Restore Oppy mini-games (owner, 2026-11-15).
+   Each game loads it AFTER its own <style>, then stage.js:  <link rel="stylesheet" href="house.css"><script src="stage.js"></script>
+   Owner: "standardize the fonts across the games", "make the buttons of undo clear erase to be the same",
+          "the button to the next game should be big and easy to see", "Current HTML and canvas, plus a scaled stage",
+          "improve a consistent and strict design layout across all the pages".
+
+   THE STAGE. The whole UI lives in <div id="app" data-stage class="frame">, a fixed 1280 x 720 box that stage.js scales
+   as one unit to fit the window. Inside it, sizes are design pixels (px on 1280 x 720) or cqw / cqh. Never vw / vh / dvh,
+   never a viewport @media query: the stage is always 1280 x 720. Every token below is a fixed design-size value.
+
+   THE FRAME (same rows in every game):  header.hdr  |  .stepbar  |  main.play (.play-board + .play-ctrls)  |  footer (caption bar)
+   THE RULE:  clickable = raised (2px accent border, darker depth edge, shared radius, pointer, hover / focus / pressed;
+              picture tiles carry a ▶ badge; selected = filled accent).  information = flat, no border, no hover, muted labels,
+              ✓ / ✕ badges only.  disabled = 50% opacity, no depth edge.
+   Hand-over note for builders: .claude/wave4-contract.md */
+
+:root {
+  --font-display: "Jersey 15", system-ui, sans-serif;
+  --font-read: "Atkinson Hyperlegible", system-ui, sans-serif;
+  /* the stage and the frame (design pixels) */
+  --stage-w: 1280px; --stage-h: 720px;
+  --pad-x: 16px; --pad-y: 10px; --row-gap: 8px;
+  --hdr-h: 52px;                                     /* header row */
+  --banner-h: 44px;                                  /* step banner */
+  --bar-h: 108px;                                    /* caption bar: two caption lines + speaker + padding */
+  --main-h: calc(var(--stage-h) - 2 * var(--pad-y) - var(--hdr-h) - var(--banner-h) - var(--bar-h) - 3 * var(--row-gap));   /* 472px */
+  --ctrl-w: 560px;                                   /* the controls column on the right of the main area */
+  /* the caption bar: ONE text size and ONE bar height everywhere; captions.js pages long lines, never shrinks them */
+  --caption-size: 24px; --caption-lh: 1.3;
+  --portrait: 80px;                                  /* the 40 x 40 portrait canvas at 2x */
+  --bar-pad: 8px;
+  /* one type scale: nothing on the stage is smaller than 16px */
+  --fs-small: 16px;                                  /* credits, small print, legends */
+  --fs-label: 18px;                                  /* labels, tile captions, speaker name */
+  --fs-who: 18px;
+  --fs-body: 20px;                                   /* panel body text */
+  --fs-step: 24px;                                   /* the step banner sentence (= caption size) */
+  --fs-title: 26px;                                  /* game title in the header, story title */
+  --fs-heading: 32px;                                /* card heading */
+  /* one button scale */
+  --fs-btn-primary: 28px; --h-btn-primary: 60px;     /* the big green button (GO, Next, Start, I'm ready) */
+  --fs-btn-tool: 18px;    --h-btn-tool: 44px;        /* header buttons, Undo / Clear / Hint, Replay, chips */
+  --fs-btn-cap: 22px;     --h-btn-cap: 56px;         /* the caption bar's Back / Next */
+  --btn-h: var(--h-btn-tool); --btn-h-primary: var(--h-btn-primary);
+  --radius: 14px; --gap: 12px; --card-pad: 16px;
+  --depth: #0a0620aa;                                /* the darker bottom edge of everything clickable */
+}
+
+/* ---------- the page and the stage ---------- */
+html, body { overflow: hidden; }                     /* no page scroll, ever */
+html[data-staged], html[data-staged] body { margin: 0; width: 100%; height: 100%; }
+/* the letterbox bands show the page background: the same dark gradient on <html> (the body's own copy would end where the body ends) */
+html { background: #1b1433; }   /* solid: the stage paints its own gradient; a second one behind it would not line up */
+html[data-staged] body { background: none !important; }
+[data-stage] {
+  position: fixed !important; left: 0; top: 0; width: var(--stage-w) !important; height: var(--stage-h) !important;
+  max-width: none !important; max-height: none !important; margin: 0 !important; box-sizing: border-box;
+  transform-origin: 0 0; container-type: size; overflow: hidden; z-index: 1;
+}
+/* overlays (cards, story time, solved, start) sit INSIDE the stage: position: fixed is relative to the transformed stage */
+[data-stage] .overlay { position: absolute; inset: 0; }
+html[data-staged] .gb-over { z-index: 2147483000; }  /* giftbox.js puts its overlay on <body>, sized to the window, above the stage */
+
+/* ---------- fonts: read by default, display for the named roles ---------- */
+html body { font-family: var(--font-read); }
+html body, html body * { font-variant-ligatures: none; }   /* the pixel font joins "fl"/"fi" into one odd glyph ("flyer" read as "Ayer") */
+button, select, h1, h2, h3, .mtitle, .storytitle, .label, .badge, .reward, .who, .toolbtn, .btn-next, .btn-replay, .factchip b,
+.hbtn, .hdr-title, .step-text, .st-title, .st-tag { font-family: var(--font-display); }
+/* every number in the clear font (owner, 2026-11-14: the pixel font's digits are hard to read, "15" looks like "1S"):
+   step and puzzle counters, page counters, progress "2 of 5", counters on buttons, fact values. Wrap a number inside
+   display-font text in <span class="digits">. */
+.digits, .step-pill, .step-sub, .st-part, .cap-page, .fact-value, .count, .chip-num, .mc .num, .mc .cnum, .answer .n, .mrows .n, .eq { font-family: var(--font-read) !important; font-weight: 700; }
+#line, #who { font-family: var(--font-read); }                  /* the caption bar is meant to be read */
+#who { font-family: var(--font-display); }                      /* ...but the speaker's name is a label */
+kbd { font-family: var(--font-read); }
+.dev, .dev button, .dev select, .err { font-family: system-ui, sans-serif; }
+/* the floating dev box (stage.js: floatDev): fixed to the WINDOW, over everything but the gift box, never part of the layout */
+html body > .dev:not([hidden]) {
+  position: fixed !important; left: 8px; top: auto; bottom: 8px; right: auto; z-index: 2147482000; display: flex !important; flex-wrap: wrap !important; white-space: normal !important;
+  align-items: center; gap: 6px 6px; max-width: min(520px, calc(100vw - 16px)); margin: 0 !important; padding: 6px 8px !important; box-sizing: border-box;
+  background: rgba(0, 0, 0, .85) !important; opacity: 1; border-radius: 8px; font-size: 13px;
+}
+html body > .dev[data-floating]:not(:hover):not(:focus-within) { background: rgba(0, 0, 0, .78) !important; }
+html body > .dev .dev-bar { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+html body > .dev .dev-grip { cursor: grab; font-weight: 700; color: var(--yellow, #fff27a); padding: 2px 6px; border: 1px dashed currentColor; border-radius: 4px; touch-action: none; user-select: none; }
+html body > .dev .dev-grip:active { cursor: grabbing; }
+html body .dev button.dev-tog { padding: 0 7px; min-width: 22px; }
+html body > .dev.dev-collapsed > :not(.dev-bar) { display: none !important; }
+html body > .dev.dev-collapsed { flex-wrap: nowrap !important; }
+/* the DEV strip's controls are plain system controls, immune to every house button style (they used to inherit light text on a white box) */
+html body .dev button, html body .dev select {
+  all: revert; box-sizing: border-box; font: 13px/1.2 system-ui, -apple-system, sans-serif; color: #111; background: #f3f3f3; border: 1px solid #767676;
+  border-radius: 4px; padding: 3px 8px; height: auto; min-height: 0; margin: 0; cursor: pointer; text-shadow: none; box-shadow: none; filter: none; opacity: 1; transform: none;
+  font-variant-ligatures: none; letter-spacing: normal; text-transform: none; white-space: nowrap; -webkit-text-fill-color: #111; appearance: auto;
+}
+html body .dev button:hover { background: #fff; }
+html body .dev button:disabled { opacity: .5; cursor: default; }
+html body .dev select { padding: 2px 4px; background: #fff; }
+
+/* =====================================================================================
+   THE FRAME: <div id="app" data-stage class="frame"> header.hdr, .stepbar, main.play, footer </div>
+   ===================================================================================== */
+.frame { display: grid !important; grid-template-rows: var(--hdr-h) var(--banner-h) minmax(0, 1fr) var(--bar-h) !important; grid-template-columns: minmax(0, 1fr) !important;
+  gap: var(--row-gap) !important; padding: var(--pad-y) var(--pad-x) !important; }
+/* header: title left; right, in this order: [Your mission] [?] [🔊 Voice] [↺ Restart] */
+.hdr { display: flex !important; align-items: center; gap: 12px; height: var(--hdr-h); min-width: 0; flex-wrap: nowrap !important; margin: 0; padding: 0; }
+.hdr .hdr-title, .hdr h1 { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; margin: 0; font-size: var(--fs-title); line-height: 1; white-space: nowrap; color: var(--cyan, #7ff7ff); text-shadow: 0 0 10px #7ff7ff88; }
+.hdr-ctrls { margin-left: auto; display: flex; gap: 10px; align-items: center; flex: none; }
+.hbtn { height: var(--h-btn-tool); min-height: 0; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+  background: #ffffff14; color: var(--ink, #f6f0ff); font-size: var(--fs-btn-tool); line-height: 1; white-space: nowrap; }
+.hbtn.hbtn-icon { width: var(--h-btn-tool); padding: 0; font-size: 24px; font-weight: 700; border-radius: 50%; }
+.hbtn[aria-pressed="false"] { color: var(--muted, #b9acdf); }
+.hbtn.hbtn-mission { --accent: var(--pink, #ff7ad9); }
+/* the step banner: "Step N of M" pill + one sentence saying what to do now (+ "Puzzle 2 of 4" for puzzle sets). Information: flat. */
+.stepbar { display: flex; align-items: center; gap: 14px; height: var(--banner-h); min-width: 0; padding: 0 14px; border-radius: var(--radius);
+  background: #ffffff10; border: 0; box-shadow: none; cursor: default; }
+.stepbar .step-pill { flex: none; padding: 4px 12px; border-radius: 999px; background: var(--cyan, #7ff7ff); color: #1b1433; font-size: var(--fs-label); font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.stepbar .step-text { flex: 1 1 auto; min-width: 0; font-size: var(--fs-step); line-height: 1.2; color: var(--ink, #f6f0ff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stepbar .step-sub { flex: none; font-size: var(--fs-label); color: var(--yellow, #fff27a); white-space: nowrap; }
+.stepbar .step-sub:empty { display: none; }
+/* main area: the canvas on the left at a whole-number scale, one controls column on the right */
+.play { display: grid !important; grid-template-columns: minmax(0, 1fr) var(--ctrl-w) !important; gap: 16px !important; min-height: 0; height: var(--main-h); align-items: center !important; justify-content: stretch !important; }
+.play.solo { grid-template-columns: minmax(0, 1fr) !important; }
+.play.solo .play-ctrls { display: none; }
+.play-board { position: relative; min-width: 0; min-height: 0; height: 100%; display: grid; place-items: center; }
+.play-board canvas { image-rendering: pixelated; image-rendering: crisp-edges; }   /* CSS size = a whole-number multiple of its pixels */
+.play-ctrls { min-width: 0; min-height: 0; max-height: 100%; display: flex; flex-direction: column; gap: var(--gap); justify-content: center; }
+.play-ctrls > .card, .card.block { background: #261c48cc; border: 0; border-radius: var(--radius); padding: var(--card-pad); }
+
+/* ---------- caption bar (the same in every game): portrait, speaker, two-line caption, Back / Next ---------- */
+body footer {
+  width: 100% !important; max-width: none !important; justify-self: stretch; align-self: stretch; margin-left: 0; margin-right: 0;   /* always the full stage width, whatever the caption length */
+  display: grid; grid-template-columns: var(--portrait) minmax(0, 1fr) auto; gap: 14px; align-items: center;
+  height: var(--bar-h); min-height: var(--bar-h); max-height: var(--bar-h); padding: var(--bar-pad) 14px; overflow: hidden;
+  background: #1b1433e6; border: 2px solid #ffffff22; border-radius: 18px; box-sizing: border-box; position: relative; z-index: 2;
+}
+body footer #portrait { width: var(--portrait); height: var(--portrait); image-rendering: pixelated; }
+#who, .who { font-size: var(--fs-who); line-height: 1.3; height: 1.3em; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#line, .line { font-size: var(--caption-size); line-height: var(--caption-lh); height: calc(2 * var(--caption-size) * var(--caption-lh)); overflow: hidden; overflow-wrap: anywhere; }
+html .cap-page { font-size: var(--fs-small); }       /* captions.js's "1/2" pill: at least 16px on the stage */
+body footer .cap-btns { display: flex; gap: 10px; align-items: center; }
+#nextBtn, .cap-btns .next { height: var(--h-btn-cap); padding: 0 20px; border-radius: var(--radius); border: 2px solid var(--pink, #ff7ad9); background: #ff7ad922; color: var(--ink, #f6f0ff);
+  font-family: var(--font-display); font-size: var(--fs-btn-cap); cursor: pointer; box-shadow: 0 4px 0 #8a2c73, 0 0 14px #ff7ad966; }
+#nextBtn:hover, .cap-btns .next:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #8a2c73, 0 0 14px #ff7ad966; }
+#nextBtn:active, .cap-btns .next:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a2c73; }
+#backBtn, .cap-btns .back, .cap-btns .toolbtn { height: var(--h-btn-cap); min-height: 0; padding: 0 14px; background: #ffffff12; color: var(--ink, #f6f0ff);
+  font-family: var(--font-display); font-size: var(--fs-btn-cap); cursor: pointer; }
+
+/* ---------- headings, title, body ---------- */
+.overlay h2, .storytitle { font-size: var(--fs-heading); }
+.overlay p, .overlay li { font-size: var(--fs-body); }
+.msub, .goal, .solvedmsg { font-size: var(--fs-body); }
+.rwhy, .disc, .legend, .keys, .badge { font-size: var(--fs-small); }
+
+/* ---------- primary button: big, green, the way forward ---------- */
+.btn-next, .go, .main-action {
+  min-height: var(--h-btn-primary); padding: 0 32px; border-radius: 16px; border: 3px solid var(--lime, #b8ff7a);
+  background: linear-gradient(180deg, #b8ff7a, #6fe08a); color: #1b1433; font-family: var(--font-display); font-size: var(--fs-btn-primary);
+  font-weight: 700; cursor: pointer; box-shadow: 0 0 22px #b8ff7a88; line-height: 1.1;
+}
+.btn-next:hover, .go:hover, .main-action:hover { filter: brightness(1.06); }
+.btn-next:disabled, .go:disabled, .main-action:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+/* secondary: smaller, beside the primary one */
+.btn-replay {
+  min-height: var(--h-btn-tool); padding: 0 16px; border-radius: 12px; border: 2px solid #ffffff55; background: #ffffff12; color: var(--ink, #f6f0ff);
+  font-family: var(--font-display); font-size: var(--fs-btn-tool); cursor: pointer; white-space: nowrap;
+}
+.btn-replay:hover { background: #ffffff22; }
+.nextrow { display: flex; gap: 12px; align-items: center; justify-content: center; width: 100%; }
+.nextrow .btn-next { flex: 1 1 auto; }
+.nextrow .btn-replay { flex: 0 0 auto; }
+.nextrow [hidden] { display: none !important; }
+
+/* ---------- small tool buttons: Undo and Clear, identical everywhere ---------- */
+.toolbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4em; min-height: var(--h-btn-tool); padding: 0 14px;
+  border-radius: 10px; border: 2px solid #ffffff55; background: #ffffff14; color: var(--ink, #f6f0ff); font-family: var(--font-display);
+  font-size: var(--fs-btn-tool); line-height: 1; cursor: pointer; white-space: nowrap;
+}
+.toolbtn:hover { background: #ffffff26; }
+.toolbtn:disabled { opacity: .5; cursor: not-allowed; }
+.ico-eraser {
+  display: inline-block; width: 1.25em; height: 1.25em; flex: none; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.1 2.9 21.1 8.9a1.6 1.6 0 0 1 0 2.2L12.2 20H20v2H8.6L3 16.4a1.6 1.6 0 0 1 0-2.2L12.9 2.9a1.6 1.6 0 0 1 2.2 0ZM6.2 15.3l3.4 3.4 3.5-3.5-3.4-3.4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.1 2.9 21.1 8.9a1.6 1.6 0 0 1 0 2.2L12.2 20H20v2H8.6L3 16.4a1.6 1.6 0 0 1 0-2.2L12.9 2.9a1.6 1.6 0 0 1 2.2 0ZM6.2 15.3l3.4 3.4 3.5-3.5-3.4-3.4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---------- gift icon + mystery reward + fact chip ---------- */
+.giftico {
+  display: inline-block; width: 1.15em; height: 1.15em; vertical-align: -.2em; margin-right: .35em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='2' y='6' width='12' height='9' fill='%23ff7ad9'/%3E%3Crect x='1' y='4' width='14' height='3' fill='%23ffb0ea'/%3E%3Crect x='7' y='4' width='2' height='11' fill='%23fff27a'/%3E%3Crect x='4' y='2' width='3' height='2' fill='%23fff27a'/%3E%3Crect x='9' y='2' width='3' height='2' fill='%23fff27a'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.reward { font-size: var(--fs-small); }
+.reward.mystery { background: #ffffff26 !important; color: var(--ink, #f6f0ff) !important; }
+.factchip {
+  display: inline-flex; align-items: center; gap: .5em; max-width: 100%; padding: 4px 12px; border-radius: 12px; border: 2px solid #7ff7ff88; background: #7ff7ff1c;
+  color: var(--ink, #f6f0ff); font-family: var(--font-read); font-size: var(--fs-small); line-height: 1.3; text-align: left;
+}
+.factchip b { color: var(--yellow, #fff27a); font-size: 1.05em; }
+
+/* =====================================================================================
+   Legacy per-game rules (the four games not yet on the stage). Units are stage-relative: cqh / cqw fall back to the
+   window when a page has no stage, so these behave as before there. A converted game may override them in its own
+   <style> with a more specific selector (#app ...).
+   ===================================================================================== */
+/* ----- Phoenix: The Clue That Vanished ----- */
+header h1 { font-size: var(--fs-title); }
+.mission li, .tool, .st-fs, .st-top .st-title, .back, .next, .tooltab, .answer .n, .mc .num, .mc .tick, .mrows .n { font-family: var(--font-display); }
+.mission li { font-size: var(--fs-btn-tool); }
+.tool, .st-fs { font-size: var(--fs-btn-tool); min-height: var(--h-btn-tool); height: auto; }
+.mtitle { font-size: var(--fs-title); }
+.st-facts li { font-size: var(--fs-body); }
+.st-facts, .st-label, .st-fig figcaption, .st-part, .pinfo, .tapcount, .solvedmsg, .mdesc, .mwhy, .clist, .twocol figure, .mstars figure, .rwhy, .legend, .keys, .goal, .msub, .inset figcaption { font-family: var(--font-read); }
+.mc .mname, .mc .reward, .mrows b, .st-tag, .inset .tag, .label, .clist b { font-family: var(--font-display); }
+.label { font-size: var(--fs-body); }
+.pinfo, .tapcount, .mwhy, .mdesc { font-size: var(--fs-body); }
+.mdesc { font-size: var(--fs-small); }
+.answer { font-family: var(--font-read); font-size: var(--fs-label); }
+.tooltab small, .rwhy { font-size: var(--fs-small); }
+.bigaction, .bigbtn { font-family: var(--font-display); }
+.bigaction { font-size: var(--fs-btn-primary); }
+.bignext { width: auto; height: auto; flex: 1 1 auto; }
+.mcard .go { padding: 0 32px; }
+.solved .nextrow { margin-top: 4px; }
+.solvedmsg { margin-bottom: 12px; }
+.solchip { margin: 8px 0 0; }
+/* cards and the mission panel fit the 720px stage (these were the short-window rules; the stage is always 720 high) */
+#scoopDemo { width: auto !important; max-width: 100%; max-height: min(16cqh, 190px); display: block; margin: 0 auto; }
+.twocol img, .twocol canvas { width: auto; max-width: 100%; max-height: min(20cqh, 230px); margin: 0 auto; display: block; }
+
+/* ----- Ingenuity: Flight Plan ----- */
+.chip, .slot, .key, .deg, .gname, .rh, .rrow b, .plist b, .demoword, .qbig { font-family: var(--font-display); }
+.pinfo, .solvedmsg, .clist, .count, .gwhy, .note, .plist, .plist small, .mdesc, .mwhy, .msub, .rrow figure, .inset figcaption, .facts, .factchips, .story-collage .inset figcaption { font-family: var(--font-read); }
+.rrow figure { font-family: var(--font-read); font-size: var(--fs-small); }
+.answer .n { font-family: var(--font-display); }
+.pinfo, .note, .gwhy { font-size: var(--fs-small); }
+.pinfo { font-size: var(--fs-label); }
+.note { color: var(--lav, #c6a8ff); }
+.mc .mname { font-family: var(--font-display); }
+.mc .mdesc { font-size: var(--fs-small); }
+.mwhy { font-size: var(--fs-body); }
+.qbig { font-size: 26px; }
+.facts li, .factchips li, .story-collage .inset figcaption { font-family: var(--font-read); }
+.solved .solvedmsg { margin-bottom: 10px; }
+
+/* ----- Secret in the Stripes (the parachute game) ----- */
+.controls .go { min-height: 0; }
+.chip, .tool, .mission li, .mc .mname, .mc .reward, .mc .num, .mc .tick, .answer .n, .mtitle, .storyfull h2, .storyfull .facts b, .solvedword, .eq, .item .lt, .key span, .stripe, .st-tag { font-family: var(--font-display); }
+.readout b, .count, .row3, .row3 b, .pinfo, .note, .clue, .storyfull .facts li, .storyfull figcaption, .storyfull .kicker, .storyfull .src, .inset figcaption, .mdesc, .mwhy, .msub, .trio figure, .nots, .keydemo .total, .keydemo .stripes span, .plist { font-family: var(--font-read); }
+#p2Panel .label, #p3Label { font-family: var(--font-read); }
+.item .rd { font-family: var(--font-read); }
+.tool, .chip { font-size: var(--fs-btn-tool); }
+.storyfull h2 { font-size: var(--fs-heading); }
+.storyfull .facts li { font-size: var(--fs-body); }
+.storyfull figcaption { font-size: var(--fs-small); text-align: center; text-wrap: balance; }
+.storyfull figcaption a { white-space: nowrap; }
+.eq { font-size: 22px; }
+.mcard .go { height: auto; }
+
+/* ----- InSight: Whisper Beneath Mars ----- */
+.tool, .mission li, .chip, .mc .mname, .mc .reward, .mc .num, .mc .cnum, .mc .tick, .mtitle, .st-title, .storytitle, .bigaction, .k-hint, .go, .next, .back, .tooltab, .answer .n { font-family: var(--font-display); }
+.msub, .mdesc, .mwhy, .how, .scenenote, .why, .praise, .pinfo, .tapcount, .num, .goal, .keys, .st-fig, .st-fig figcaption, .st-part, .legend { font-family: var(--font-read); }
+.praise { margin: 0 0 8px; font-size: var(--fs-heading); font-family: var(--font-display); color: var(--lime, #b8ff7a); }
+.why { margin: 0 0 6px; font-size: var(--fs-body); }
+.how { font-size: var(--fs-body); }
+.scenenote { font-size: var(--fs-small); }
+.goal { font-size: var(--fs-body); }
+.tapcount { font-size: var(--fs-body); }
+.back, .st-fs { font-size: var(--fs-btn-tool); }
+
+/* ----- Track Detective (on the stage: its own rules are in its template) ----- */
+.actions .toolbtn { flex: 1 1 0; min-width: 0; padding: 0 4px; }
+.actions .go { min-height: 0; }
+.chip, .tool, .mission li, .part, .rname, .badge { font-family: var(--font-display); }
+.rockcard, .rwhy, .pinfo, .note, .solvedmsg, .clist, .count, .rlinks, .mdesc, .mwhy, .msub, .st-fig figcaption { font-family: var(--font-read); }
+
+/* =====================================================================================
+   ONE rule: clickable things look like buttons, information never does (owner: "its not obvious which ones can be clicked")
+   Clickable: raised, solid 2px accent border (--accent, default cyan), a darker bottom depth edge, the shared radius,
+   pointer cursor; hover = lift + white border, focus = yellow ring, pressed = moves down; picture tiles (.tile) carry a
+   ▶ corner badge; selected (.is-sel, .on, .sel, [aria-selected="true"]) = filled with the accent.
+   Information (.info): flat, no border, no hover, default cursor, muted label; only ✓ (.badge-ok) / ✕ (.badge-no) badges.
+   Disabled: 50% opacity, no depth edge, not-allowed cursor.
+   ===================================================================================== */
+.tap, .hbtn, .toolbtn, .btn-replay, .mvtile, .tile, .tool, .chip, .st-fs, #backBtn {
+  border: 2px solid var(--accent, var(--cyan, #7ff7ff)); border-radius: var(--radius); box-shadow: 0 4px 0 var(--depth); cursor: pointer;
+  transition: transform .08s, box-shadow .08s, border-color .08s, background .08s; position: relative;
+}
+.hbtn.hbtn-icon { border-radius: 50%; }
+:is(.tap, .hbtn, .toolbtn, .btn-replay, .mvtile, .tile, .tool, .chip, .st-fs, #backBtn):hover:not(:disabled) { transform: translateY(-2px); border-color: #ffffff; box-shadow: 0 6px 0 var(--depth); }
+:is(.tap, .hbtn, .toolbtn, .btn-replay, .mvtile, .tile, .tool, .chip, .st-fs, #backBtn):active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--depth); }
+:is(.tap, .hbtn, .toolbtn, .btn-replay, .mvtile, .tile, .tool, .chip, .st-fs, .btn-next, .go, .main-action, #nextBtn, #backBtn):focus-visible { outline: 4px solid var(--yellow, #fff27a); outline-offset: 3px; }
+:is(.tap, .hbtn, .toolbtn, .btn-replay, .mvtile, .tile, .tool, .chip, .st-fs):disabled { opacity: .5; box-shadow: none; cursor: not-allowed; transform: none; }
+:is(.tap, .tile, .mvtile, .chip).is-sel, :is(.tap, .tile, .mvtile, .chip)[aria-selected="true"], .mvtile.on { background: var(--accent, var(--cyan, #7ff7ff)); color: #1b1433; border-color: var(--accent, var(--cyan, #7ff7ff)); }
+.btn-next, .go, .main-action { box-shadow: 0 5px 0 #2e8a49, 0 0 22px #b8ff7a66; }
+.btn-next:active:not(:disabled), .go:active:not(:disabled), .main-action:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #2e8a49; }
+/* picture tiles: a small ▶ badge in the corner says "tap me"; a right answer gets ✓, a crossed one ✕ */
+.tile::after, .mvtile::after { content: "▶"; position: absolute; right: 6px; top: 6px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font: 700 16px/1 var(--font-read); background: var(--accent, var(--cyan, #7ff7ff)); color: #1b1433; pointer-events: none; }
+.tile.right::after, .tile.ok::after { content: "✓"; background: var(--lime, #b8ff7a); }
+.tile.crossed::after, .tile.no::after { content: "✕"; background: var(--orange, #ffab6b); }
+.mvtile.on::after { background: #1b1433; color: var(--accent, var(--cyan, #7ff7ff)); }
+/* information: flat */
+.info { background: #ffffff0c; border: 0 !important; box-shadow: none !important; border-radius: var(--radius); cursor: default; }
+.info .lbl, .lbl { color: var(--muted, #b9acdf); font-size: var(--fs-label); font-family: var(--font-display); margin: 0; }
+.badge-ok, .badge-no { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font: 700 16px/1 var(--font-read); color: #1b1433; flex: none; }
+.badge-ok { background: var(--lime, #b8ff7a); } .badge-ok::before { content: "✓"; }
+.badge-no { background: var(--orange, #ffab6b); } .badge-no::before { content: "✕"; }
+kbd { border: 0 !important; background: #ffffff1c; border-radius: 6px; padding: 0 6px; color: var(--ink, #f6f0ff); box-shadow: none; }   /* a key name is information */
+/* information-only tiles inside the big card: flat, no border, nothing to click */
+.bigcard .rrow figure, .bigcard .rocks4 figure { pointer-events: none; cursor: default; background: #00000026; border-radius: 12px; padding: 4px; }
+.bigcard .rrow img, .bigcard .rocks4 img { border: 0 !important; box-shadow: none !important; }
+.bigcard .rrow figure b, .bigcard .rocks4 figcaption, .bigcard .rrow figure { color: var(--muted, #b9acdf); }
+.bigcard .rrow .yes b, .bigcard .rocks4 .yes figcaption { color: var(--lime, #b8ff7a); }
+.bigcard .rrow .yes img, .bigcard .rocks4 .yes img { outline: none !important; }
+
+/* ---------- cards on the stage ---------- */
+[data-stage] .overlay .box { max-width: 680px; max-height: calc(var(--stage-h) - 32px); overflow: hidden; }
+/* THE SMALL POPUP CARD (.box.mcard, filled by every game's showCard): header band (title + difficulty pips), the words in an inset
+   "speech" panel, then the standard primary button. Only the button is pressable. The big explainer card and the mission panel have their own rules. */
+[data-stage] .overlay .box.mcard:not(.bigcard) {
+  --card-px: 28px; width: fit-content; min-width: 420px; max-width: 560px; padding: 0 var(--card-px) 26px; text-align: left !important;
+  background: var(--panel, #261c48); border: 3px solid var(--accent, var(--cyan, #7ff7ff)); border-radius: var(--radius);
+  box-shadow: 0 14px 34px #0a062099, 0 0 0 1px #ffffff14 inset; animation: cardPop .26s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+[data-stage] .overlay .box.mcard:not(.bigcard):has(canvas, .bd-grid) { max-width: 680px; }
+@keyframes cardPop { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { [data-stage] .overlay .box.mcard:not(.bigcard) { animation: none; } }
+.overlay .box.mcard:not(.bigcard) > h2 {
+  margin: 0 calc(-1 * var(--card-px)) 0; padding: 18px var(--card-px) 14px; text-align: center; font-size: var(--fs-heading); line-height: 1.15;
+  color: var(--accent, var(--cyan, #7ff7ff)); text-shadow: 0 0 10px #7ff7ff55; background: #ffffff12; border-bottom: 2px solid #ffffff1f;
+  border-radius: calc(var(--radius) - 3px) calc(var(--radius) - 3px) 0 0;
+}
+.overlay .box.mcard:not(.bigcard) > h2:has(+ p .diff) { padding-bottom: 6px; border-bottom: 0; }
+.overlay .box.mcard:not(.bigcard) > p:has(.diff) {
+  margin: 0 calc(-1 * var(--card-px)) 20px !important; padding: 0 var(--card-px) 14px; text-align: center !important; background: #ffffff12;
+  border-bottom: 2px solid #ffffff1f; font-size: var(--fs-label); color: var(--muted, #b9acdf);
+}
+/* the words: one inset panel (paragraphs stack inside it as one), accent bar on the left */
+.overlay .box.mcard:not(.bigcard) > p:not(:has(.diff)) {
+  margin: 0 !important; padding: 12px 18px 12px 20px; text-align: left !important; font-size: var(--fs-body) !important; line-height: 1.45;
+  color: var(--ink, #f6f0ff); background: #ffffff0f; border: 1px solid #ffffff26; border-left: 6px solid var(--accent, var(--cyan, #7ff7ff));
+  border-radius: 12px; cursor: default;
+}
+.overlay .box.mcard:not(.bigcard) > h2 + p:not(:has(.diff)), .overlay .box.mcard:not(.bigcard) > p:has(.diff) + p:not(:has(.diff)) { margin-top: 18px !important; }
+.overlay .box.mcard:not(.bigcard) > p:not(:has(.diff)):has(+ p:not(:has(.diff))) { border-bottom: 0; border-radius: 12px 12px 0 0; padding-bottom: 4px; }
+.overlay .box.mcard:not(.bigcard) > p:not(:has(.diff)) + p:not(:has(.diff)) { border-top: 0; border-radius: 0 0 12px 12px; padding-top: 4px; }
+.overlay .box.mcard:not(.bigcard) > .row { margin-top: 22px; display: flex; justify-content: center; align-items: center; gap: 14px; }
+
+/* =====================================================================================
+   The big "Before you …" explainer card: 90% of the stage (1152 x 648), the moves play in it, ends with
+   "Are you ready for the game?" + the standard primary button. Markup: see Track Detective's rockBriefing().
+   .bd-stage canvas: the game sets an exact whole-number multiple of its pixels (about 45% of the card).
+   .mvtile canvas: a whole-number multiple too (the game sets width / height in px).
+   ===================================================================================== */
+/* The card sits BELOW the header row (the way the mission panel does; owner 2026-11-15: "a bit smaller", it covered the header and the Map button) and is a
+   little smaller: the card keeps its designed 1152 x 648 layout inside (so no game's content can overflow) and is scaled to 0.94 (about 1083 x 609), top-centred
+   under the header row (62px) with a 14px margin. A game needs no change for this. */
+[data-stage] .overlay:has(> .box.bigcard) { padding: 76px 0 0; box-sizing: border-box; align-items: start; justify-items: center; }
+[data-stage] .overlay .box.bigcard, .overlay .box.bigcard { width: 1152px; height: 648px; max-width: none; max-height: none; padding: 16px 24px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; text-align: center; box-sizing: border-box;
+  transform: scale(.94); transform-origin: 50% 0; }
+.bigcard h2 { margin: 0; font-size: var(--fs-heading); line-height: 1.1; }
+.bd-grid { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; }
+.bd-stage { min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.bd-label { display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--font-display); font-size: var(--fs-heading); line-height: 1.2; font-weight: 700; animation: demoPop .4s both; }
+.bd-label svg { width: 1.1em; height: 1.1em; flex: none; }
+@keyframes demoPop { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
+.bd-side { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.bigcard .bd-sec { font-family: var(--font-display); font-size: var(--fs-body); line-height: 1.2; margin: 0; color: var(--cyan, #7ff7ff); }
+.bd-stage canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+.mvtiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.mvtile { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 3px; background: #ffffff18; color: inherit; font-family: var(--font-display); }
+.mvtile canvas { display: block; border-radius: 8px; image-rendering: pixelated; }
+.mvtile span { display: flex; align-items: center; justify-content: center; gap: 4px; font-weight: 700; font-size: var(--fs-label); line-height: 1.1; }
+.mvtile svg { width: 1.1em; height: 1.1em; flex: none; }
+.bigcard .rrow figure, .bigcard .rocks4 figcaption { font-size: var(--fs-label); }
+.bigcard .rh { font-size: var(--fs-body); }
+.bigcard .row { margin: 0; display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: nowrap; }
+.readytxt { font-family: var(--font-display); font-size: var(--fs-heading); font-weight: 700; color: var(--yellow, #fff27a); }
+.bigcard .go { min-height: var(--h-btn-primary); height: var(--h-btn-primary); font-size: var(--fs-btn-primary); padding: 0 36px !important; }
+@media (prefers-reduced-motion: reduce) { .bd-label { animation: none; } }
+
+/* ---- the dev box: now a floating, draggable panel (see "the floating dev box" near the top of this file) ---- */
+/* the old slim step banner of the unconverted games */
+.stepbanner { font-family: var(--font-display); font-size: var(--fs-title); color: var(--cyan, #7ff7ff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
+
+/* =====================================================================================
+   ONE fact design for every story page
+   <ul class="facts"><li class="fact"><b class="fact-value">Feb 18, 2021</b><span class="fact-text">Landing day at Jezero crater</span></li></ul>
+   <p class="fact-source">Facts from <a href="...">NASA</a></p>     (at most four facts per story part)
+   ===================================================================================== */
+.facts { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: center; }
+.facts .fact { display: grid; grid-template-columns: minmax(0, .42fr) minmax(0, 1fr); gap: var(--gap); align-items: center; padding: var(--gap) calc(var(--gap) * 1.5); border-radius: var(--radius); background: #ffffff10; border: 0; border-left: 6px solid var(--cyan, #7ff7ff); font-size: var(--fs-body); line-height: 1.3; }
+.facts .fact .fact-value { font-family: var(--font-read); font-weight: 700; font-size: var(--fs-heading); color: var(--yellow, #fff27a); line-height: 1.1; white-space: normal; overflow-wrap: anywhere; }
+.facts .fact .fact-text { font-family: var(--font-read); font-size: var(--fs-body); color: var(--ink, #f6f0ff); }
+.fact-source, .fact-source a { font-family: var(--font-read); font-size: var(--fs-small); color: var(--muted, #b9acdf); }
+.fact-source a { color: var(--cyan, #7ff7ff); white-space: nowrap; }
+
+/* =====================================================================================
+   ONE story-time chrome for every game (information, so flat):
+   <div class="st-top"><span class="st-title">The Smallest Tracks</span><span class="st-part">Part 2 of 6</span>
+     <span class="st-dots"><i class="done"></i><i class="on"></i><i></i>…</span></div>
+   <div class="st-media"><figure class="st-fig"><div class="st-frame"><img …></div>
+     <figcaption class="st-credit">What it shows · <a href="…">NASA/JPL</a></figcaption></figure></div>
+   NO tag on real photos or videos (owner, 2026-11-15; stage.js drops a stray "REAL PHOTO" / "REAL VIDEO" tag). A small .st-tag only on drawings and charts:
+   <span class="st-tag anim">NASA illustration</span> (yellow), <span class="st-tag map">NASA chart</span> (cyan).
+   ===================================================================================== */
+.st-top { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; min-width: 0; margin: 0 0 8px; }
+.st-top .st-title, .st-title { font-size: var(--fs-title); color: var(--yellow, #fff27a); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.st-top .st-part, .st-part { font-family: var(--font-read); font-size: var(--fs-label); color: var(--muted, #b9acdf); white-space: nowrap; flex: none; }
+.st-dots { display: flex; gap: 6px; margin-left: auto; flex: none; }
+.st-dots i { width: 14px; height: 14px; border-radius: 50%; background: #ffffff30; }
+.st-dots i.done { background: #ff7ad988; }
+.st-dots i.on { background: var(--pink, #ff7ad9); box-shadow: 0 0 8px var(--pink, #ff7ad9); }
+.st-media { min-height: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; align-items: center; }
+.st-fig { margin: 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.st-frame { position: relative; max-width: 100%; min-height: 0; overflow: hidden; border-radius: 12px; border: 3px solid #1b1433; box-shadow: 0 8px 30px #0008; background: #13101e; }
+.st-frame img, .st-frame video { display: block; max-width: 100%; object-fit: contain; }
+.st-tag { position: absolute; left: 8px; top: 8px; z-index: 2; padding: 2px 10px; border-radius: 999px; border: 2px solid #1b1433; background: var(--lime, #b8ff7a); color: #1b1433;
+  font-size: var(--fs-small); font-weight: 700; line-height: 1.2; pointer-events: none; }
+.st-tag.anim { background: var(--yellow, #fff27a); }
+.st-tag.map { background: var(--cyan, #7ff7ff); }
+.st-fig figcaption, .st-credit { font-family: var(--font-read); font-size: var(--fs-small); color: var(--muted, #b9acdf); text-align: center; line-height: 1.3; text-wrap: balance; max-width: 100%; }
+.st-fig figcaption a, .st-credit a { color: var(--cyan, #7ff7ff); white-space: nowrap; }
+
+/* "Back to the map" inside a framed game's header (stage.js: mapButton); turns into the big green way home once the part is found */
+.hdr .mapbtn { flex: none; --accent: var(--cyan, #7ff7ff); z-index: 20; }   /* above every card overlay (z-index 5) inside the stage: the way back to the map is never covered */
+.hdr .fsbtn { flex: none; z-index: 20; }   /* the shared Full screen toggle (stage.js): above the card overlays too, like the Map button */
+.hdr .mapbtn.found { height: 48px; padding: 0 20px; border-radius: 16px; border: 3px solid var(--lime, #b8ff7a); background: linear-gradient(180deg, #b8ff7a, #6fe08a); color: #1b1433;
+  font-size: 20px; font-weight: 700; box-shadow: 0 0 22px #b8ff7a88; animation: mapPulse 1.4s ease-in-out infinite; }
+@keyframes mapPulse { 50% { box-shadow: 0 0 34px #b8ff7acc; transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .hdr .mapbtn.found { animation: none; } }
+.overlay .box.mcard:not(.bigcard) > h2 + :not(p), .overlay .box.mcard:not(.bigcard) > h2 + p:has(.diff) + :not(p) { margin-top: 16px; }
+
+/* the large play button on a story video that did not start by itself (stage.js: storyVideo) */
+.vid-play { position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px; z-index: 4; display: grid; place-items: center; padding: 0 0 0 8px; border-radius: 50%;
+  border: 4px solid #fff; background: #1b1433d9; color: #fff; font: 700 44px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 6px 0 #0a0620aa, 0 0 30px #0008; }
+.vid-play:hover { background: #3b2a6b; transform: scale(1.05); }
+.vid-play:focus-visible { outline: 4px solid var(--yellow, #fff27a); outline-offset: 3px; }
+
+/* ---------- zoomable story pictures (stage.js: zoomify / openViewer) ---------- */
+img.zoomable { cursor: zoom-in; }
+img.zoomable:focus-visible { outline: 4px solid var(--yellow, #fff27a); outline-offset: 2px; }
+img.zoomable { border-radius: inherit; transition: filter .1s; }
+img.zoomable:hover { filter: brightness(1.1); outline: 3px solid var(--cyan, #7ff7ff); outline-offset: -3px; }   /* the hover state: a bright frame, since there is no magnifier button */
+img.zoomable:active { filter: brightness(.95); }
+/* the viewer: fixed to the WINDOW, over the stage, the caption bar and the dev box */
+.zv { position: fixed; inset: 0; z-index: 2147482500; background: #0a0618f2; display: flex; flex-direction: column; font-family: var(--font-read, system-ui, sans-serif); color: #f6f0ff;
+  animation: zvIn .18s ease-out both; }
+@keyframes zvIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .zv { animation: none; } }
+.zv-view { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; touch-action: none; outline: none; user-select: none; -webkit-user-select: none; }
+.zv-img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; max-height: none; image-rendering: auto; user-select: none; -webkit-user-drag: none; }
+.zv-bar { flex: none; padding: 10px 140px 12px 18px; background: #1b1433; border-top: 2px solid #ffffff22; font-size: 16px; line-height: 1.35; min-height: 24px; }
+.zv-cap a { color: var(--cyan, #7ff7ff); }
+.zv-tools { position: absolute; right: 16px; bottom: 10px; display: flex; gap: 8px; z-index: 2; }
+.zv-btn { min-width: 44px; height: 44px; padding: 0 10px; border-radius: 12px; border: 2px solid #ffffff66; background: #261c48; color: #f6f0ff; font: 700 22px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 3px 0 #0a0620aa; }
+.zv-btn:hover:not(:disabled) { background: #3b2a6b; }
+.zv-btn:focus-visible { outline: 4px solid var(--yellow, #fff27a); outline-offset: 2px; }
+.zv-btn:disabled { opacity: .4; cursor: default; box-shadow: none; }
+.zv-x { position: absolute; top: 14px; right: 14px; width: 52px; height: 52px; border-radius: 50%; border-color: var(--orange, #ffab6b); z-index: 2; }
+
+/* =====================================================================================
+   THE MAIN ACTION (owner, 2026-11-15): a step's one main button is a normal primary-size button (.main-action: the same look and
+   60px height as GO / Next, but only as wide as its words), centred directly under the scene, or beside it when there is no room
+   below (add .beside). It pulses gently until it is first pressed (stage.js adds .pressed; no pulse under prefers-reduced-motion).
+   Only helper controls (Hint, Switch picture) may be small corner tool buttons: .corner-tools > .corner-tool.
+   Use it inside .play-board (next to the canvas) or inside .play-ctrls.
+   ===================================================================================== */
+.main-action { width: auto; max-width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 0 36px; white-space: nowrap; align-self: center; justify-self: center; }
+.main-action .digits { font-size: .85em; }
+.main-action:not(.pressed):not(:disabled) { animation: mainPulse 1.5s ease-in-out infinite; }
+@keyframes mainPulse { 0%, 100% { box-shadow: 0 5px 0 #2e8a49, 0 0 12px #b8ff7a55; } 50% { box-shadow: 0 5px 0 #2e8a49, 0 0 34px #b8ff7acc; } }
+@media (prefers-reduced-motion: reduce) { .main-action:not(.pressed):not(:disabled) { animation: none; } }
+/* under the scene: the scene keeps row 1, the button is row 2 (400 + 8 + 60 = 468 of the 472px main area) */
+.play-board:has(> .main-action:not([hidden])) { grid-template-columns: auto; grid-template-rows: minmax(0, 1fr) auto; row-gap: 8px; justify-content: center; }
+/* beside the scene (a scene with a caption line under it has no room below) */
+.play-board:has(> .main-action.beside:not([hidden])) { grid-template-rows: none; grid-auto-flow: column; grid-template-columns: none; column-gap: 28px; row-gap: 0; align-content: center; }
+.play-ctrls > .main-action { align-self: center; }
+/* a controls column that holds only the main action (Phoenix: fit the arm): no empty panel, the button centred beside the scene */
+.play-ctrls > .card:has(> #p3Body > .main-action:only-child), .play-ctrls > .card:has(> #p3Body > .main-action) { background: none; padding: 0; }
+#p3Body:has(> .main-action:only-child) { display: flex; justify-content: center; }
+/* helper controls: small buttons in the corner of the board (Hint, Switch picture) */
+.corner-tools { position: absolute; right: 0; top: 0; z-index: 3; display: flex; gap: 8px; padding: 0; margin: 0; background: none; }
+.corner-tools.bottom { top: auto; bottom: 0; }
+.corner-tool { width: auto; min-width: 0; background: #261c48ee; }
+.play-board > .corner-tool { position: absolute; right: 4px; bottom: 4px; z-index: 3; }
+
+/* =====================================================================================
+   THE MISSION PANEL ("Your mission" / "MISSION COMPLETE!"), the same in every game (owner, 2026-11-15: "the popup is too big").
+   Markup (box.className = "mpanel", inside #cardOverlay):  div.mtitle, p.msub, div.mgrid > div.mc (span.num|cnum, span.tick, div.bar,
+   img, span.lock, div.mname, div.mdesc, span.reward), div.mwhy, then the primary button row (or a round .closex).
+   It sits inside the stage BELOW the header with a margin all round: at most 1024 x 576 (80% of the stage), never over the header row.
+   Up to four cards stand in one row; six make two rows of three with smaller pictures. One line of title and one short line each.
+   ===================================================================================== */
+[data-stage] .overlay:has(> .mpanel) { padding: 92px 128px 28px; box-sizing: border-box; }
+[data-stage] .overlay > .mpanel {
+  position: relative; width: 100%; max-width: 1024px; max-height: 576px; box-sizing: border-box; padding: 46px 24px 14px; border-radius: 26px; overflow: visible;
+  background: linear-gradient(160deg, #3b4aa0ee, #2a1f58f2 60%); border: 3px solid var(--cyan, #7ff7ff);
+  box-shadow: 0 0 0 6px #1b1433, 0 0 0 8px #7ff7ff55, 0 0 50px #7ff7ff44; text-align: center;
+}
+.mpanel::before { content: ""; position: absolute; left: -3px; top: -3px; width: 54px; height: 54px; background: var(--yellow, #fff27a); clip-path: polygon(0 0, 100% 0, 0 100%); border-top-left-radius: 26px; }
+.mtitle { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); padding: 8px 34px; border-radius: 14px; white-space: nowrap;
+  background: linear-gradient(180deg, #8ff9ff, #44c9e6); color: #1b1433; font-size: var(--fs-title); font-weight: 700; border: 3px solid #1b1433; box-shadow: 0 0 0 3px var(--cyan, #7ff7ff); }
+.mpanel .msub { color: var(--muted, #b9acdf); margin: 0 0 10px !important; font-size: var(--fs-body); font-family: var(--font-read); line-height: 1.25; }
+.mpanel .mgrid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; }
+.mpanel .mgrid:has(> :nth-child(5)) { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mc { position: relative; background: #ffffff10; border: 0; border-radius: 16px; padding: 8px 10px 10px; display: flex; flex-direction: column; align-items: center; min-width: 0; cursor: default; }
+.mc.now { background: #ff7ad92a; }
+.mc.locked { opacity: .5; filter: grayscale(.6); }
+.mpanel .mc img { width: 160px; height: 100px; max-width: 100%; max-height: none; image-rendering: pixelated; border-radius: 10px; display: block; }   /* 80 x 50 art at 2x */
+.mpanel .mgrid:has(> :nth-child(5)) .mc img { width: 80px; height: 50px; }                                                                              /* six cards: 1x */
+.mc .bar { width: 100%; height: 8px; border-radius: 6px; background: #1b1433; margin: 0 0 8px; overflow: hidden; }
+.mc .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--yellow, #fff27a), var(--orange, #ffab6b)); }
+.mc .mname { margin: 6px 0 0; max-width: 100%; font-weight: 700; font-size: var(--fs-body); line-height: 1.2; color: var(--ink, #f6f0ff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc .mdesc { max-width: 100%; margin: 2px 0 0; font-family: var(--font-read); font-size: var(--fs-small); color: var(--muted, #b9acdf); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc .reward { display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 8px; font-size: var(--fs-small); line-height: 1.3; background: var(--yellow, #fff27a); color: #1b1433; font-weight: 700; max-width: 100%; }
+.mc .tick { position: absolute; right: -4px; top: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--lime, #b8ff7a); color: #1b1433; font-size: 22px; font-weight: 700; display: grid; place-items: center; z-index: 2; }
+.mc .lock { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); font-size: 32px; }
+.mc .num, .mc .cnum { position: absolute; left: -4px; top: -12px; width: 32px; height: 32px; border-radius: 50%; background: var(--lav, #c6a8ff); color: #1b1433; font: 700 18px/1 var(--font-read); display: grid; place-items: center; z-index: 2; }
+.mc .pchips { display: flex; gap: 8px; margin-top: 8px; }
+.mc .pchips .chip { font-family: var(--font-read); font-weight: 700; min-width: 44px; height: var(--h-btn-tool); padding: 0 8px; background: #ffffff14; font-size: var(--fs-btn-tool); color: var(--ink, #f6f0ff); }
+.mc .pchips .chip.done { --accent: var(--lime, #b8ff7a); color: var(--lime, #b8ff7a); }
+.mc .pchips .chip.is-sel { background: var(--cyan, #7ff7ff); color: #1b1433; }
+.mpanel .mwhy { margin: 10px 0 0; background: #00000030; border-radius: 12px; padding: 6px 16px; font-family: var(--font-read); font-size: var(--fs-body); line-height: 1.3; text-align: left; }
+.mpanel .row { margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 14px; }
+
+/* ---------- action buttons in one row are the same size (owner, 2026-11-15: "make the buttons the same size of continue and new game
+   and next puzzle and next step"): the title screen's Start/Continue + New game, every solved panel's Next + Replay.
+   Same height, text size and padding, and the same width (the widest label); each keeps its own colours. ---------- */
+.nextrow, #startOverlay .acts .row { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; justify-content: center; }
+.nextrow > button, #startOverlay .acts .row > button {
+  min-height: var(--h-btn-primary) !important; height: var(--h-btn-primary); padding: 0 28px !important; border-radius: 16px !important;
+  font-size: var(--fs-btn-primary) !important; line-height: 1.1; white-space: nowrap; width: 100%; min-width: 0; flex: none !important;
+}
+.nextrow > .btn-replay, #startOverlay .acts .row > .btn-replay { border-width: 3px; }
+.nextrow > [hidden], #startOverlay .acts .row > [hidden] { display: none !important; }

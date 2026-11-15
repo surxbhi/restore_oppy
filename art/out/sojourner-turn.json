@@ -1,0 +1,100 @@
+{
+  "frames": [
+    {
+      "filename": "sojourner-turn 0",
+      "label": "up",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-turn 1",
+      "label": "upRight",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-turn 2",
+      "label": "right",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-turn 3",
+      "label": "downRight",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "sojourner-turn 4",
+      "label": "down",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "sojourner-turn.png",
+    "size": {
+      "w": 200,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "up",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      },
+      {
+        "name": "upRight",
+        "from": 1,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "right",
+        "from": 2,
+        "to": 2,
+        "direction": "forward"
+      },
+      {
+        "name": "downRight",
+        "from": 3,
+        "to": 3,
+        "direction": "forward"
+      },
+      {
+        "name": "down",
+        "from": 4,
+        "to": 4,
+        "direction": "forward"
+      }
+    ]
+  }
+}

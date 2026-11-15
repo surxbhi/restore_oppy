@@ -1,0 +1,194 @@
+{
+  "frames": [
+    {
+      "filename": "ingenuity 0",
+      "label": "idle",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 1",
+      "label": "idle",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 2",
+      "label": "fly",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 3",
+      "label": "fly",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 4",
+      "label": "fly",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 5",
+      "label": "fly",
+      "frame": {
+        "x": 200,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 6",
+      "label": "talk",
+      "frame": {
+        "x": 240,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 7",
+      "label": "talk",
+      "frame": {
+        "x": 280,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 8",
+      "label": "happy",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 9",
+      "label": "happy",
+      "frame": {
+        "x": 360,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 10",
+      "label": "worried",
+      "frame": {
+        "x": 400,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 11",
+      "label": "worried",
+      "frame": {
+        "x": 440,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity 12",
+      "label": "broken",
+      "frame": {
+        "x": 480,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_ingenuity_sprites.mjs",
+    "image": "ingenuity.png",
+    "size": {
+      "w": 520,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "idle",
+        "from": 0,
+        "to": 1,
+        "direction": "forward"
+      },
+      {
+        "name": "fly",
+        "from": 2,
+        "to": 5,
+        "direction": "forward"
+      },
+      {
+        "name": "talk",
+        "from": 6,
+        "to": 7,
+        "direction": "forward"
+      },
+      {
+        "name": "happy",
+        "from": 8,
+        "to": 9,
+        "direction": "forward"
+      },
+      {
+        "name": "worried",
+        "from": 10,
+        "to": 11,
+        "direction": "forward"
+      },
+      {
+        "name": "broken",
+        "from": 12,
+        "to": 12,
+        "direction": "forward"
+      }
+    ]
+  }
+}

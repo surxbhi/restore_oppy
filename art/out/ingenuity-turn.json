@@ -1,0 +1,265 @@
+{
+  "frames": [
+    {
+      "filename": "ingenuity-turn 0",
+      "label": "up",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 1",
+      "label": "up",
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 2",
+      "label": "up",
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 3",
+      "label": "up",
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 4",
+      "label": "upRight",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 5",
+      "label": "upRight",
+      "frame": {
+        "x": 200,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 6",
+      "label": "upRight",
+      "frame": {
+        "x": 240,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 7",
+      "label": "upRight",
+      "frame": {
+        "x": 280,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 8",
+      "label": "right",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 9",
+      "label": "right",
+      "frame": {
+        "x": 360,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 10",
+      "label": "right",
+      "frame": {
+        "x": 400,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 11",
+      "label": "right",
+      "frame": {
+        "x": 440,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 12",
+      "label": "downRight",
+      "frame": {
+        "x": 480,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 13",
+      "label": "downRight",
+      "frame": {
+        "x": 520,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 14",
+      "label": "downRight",
+      "frame": {
+        "x": 560,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 15",
+      "label": "downRight",
+      "frame": {
+        "x": 600,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 16",
+      "label": "down",
+      "frame": {
+        "x": 640,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 17",
+      "label": "down",
+      "frame": {
+        "x": 680,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 18",
+      "label": "down",
+      "frame": {
+        "x": 720,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    },
+    {
+      "filename": "ingenuity-turn 19",
+      "label": "down",
+      "frame": {
+        "x": 760,
+        "y": 0,
+        "w": 40,
+        "h": 40
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_ingenuity_sprites.mjs",
+    "image": "ingenuity-turn.png",
+    "size": {
+      "w": 800,
+      "h": 40
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "up",
+        "from": 0,
+        "to": 3,
+        "direction": "forward"
+      },
+      {
+        "name": "upRight",
+        "from": 4,
+        "to": 7,
+        "direction": "forward"
+      },
+      {
+        "name": "right",
+        "from": 8,
+        "to": 11,
+        "direction": "forward"
+      },
+      {
+        "name": "downRight",
+        "from": 12,
+        "to": 15,
+        "direction": "forward"
+      },
+      {
+        "name": "down",
+        "from": 16,
+        "to": 19,
+        "direction": "forward"
+      }
+    ]
+  }
+}

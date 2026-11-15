@@ -1,0 +1,32 @@
+{
+  "frames": [
+    {
+      "filename": "wheel 0",
+      "label": "wheel",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "duration": 100
+    }
+  ],
+  "meta": {
+    "app": "tools/make_sprites.mjs",
+    "image": "wheel.png",
+    "size": {
+      "w": 32,
+      "h": 32
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "wheel",
+        "from": 0,
+        "to": 0,
+        "direction": "forward"
+      }
+    ]
+  }
+}
